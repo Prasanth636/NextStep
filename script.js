@@ -1,4 +1,4 @@
-
+alert("NextStep JavaScript is running!");
 "use strict";
 
 /* =====================================
