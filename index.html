@@ -4,59 +4,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NextStep | Career Preparation</title>
+    <title>NextStep - Student Career Portal</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <header>
-        <div class="brand">NextStep</div>
-        <p>Your future starts with one step.</p>
-    </header>
+<div class="app">
 
-    <main>
-        <section class="welcome">
-            <span class="tag">YOUR CAREER JOURNEY</span>
-            <h2>Build Skills. Shape Your Future.</h2>
-            <p>Discover the skills needed to succeed in the modern AI-driven workplace.</p>
-        </section>
+    <aside class="sidebar">
+        <h2 class="logo">NextStep<span>.</span></h2>
+        <p class="menu-title">MENU</p>
 
-        <section class="card">
-            <h3>Choose Your Career</h3>
-            <p>Select your dream career to explore recommended skills.</p>
+        <nav>
+            <a href="#dashboard" class="nav-link active">🏠 Dashboard</a>
+            <a href="#careers" class="nav-link">💼 Explore Careers</a>
+            <a href="#roadmap" class="nav-link">🗺️ Learning Roadmap</a>
+            <a href="#projects" class="nav-link">📁 Project Ideas</a>
+            <a href="#placement" class="nav-link">🎓 Placement Prep</a>
+        </nav>
 
-            <select id="career">
-                <option value="">Select a career</option>
-                <option value="developer">Software Developer</option>
-                <option value="analyst">Data Analyst</option>
-                <option value="designer">Web Designer</option>
-            </select>
+        <div class="sidebar-bottom">
+            <p>Made for students.</p>
+            <small>Build skills. Shape your future.</small>
+        </div>
+    </aside>
 
-            <button onclick="showSkills()">Explore Skills</button>
-        </section>
+    <main class="main-content">
 
-        <section class="card">
-            <h3>Recommended Skills</h3>
-            <p>Complete the skills as you learn them.</p>
-            <div id="skillsList">
-                <p class="empty">Choose a career to see your skills.</p>
+        <header class="topbar">
+            <div>
+                <h2>Student Career Portal</h2>
+                <p>Your personal career preparation space</p>
+            </div>
+            <div class="profile">👨‍🎓 Student</div>
+        </header>
+
+        <section id="dashboard" class="page-section">
+            <div class="welcome-banner">
+                <span class="tag">YOUR FUTURE STARTS HERE</span>
+                <h1>Welcome to NextStep!</h1>
+                <p>Learn new skills, explore careers and prepare for placements.</p>
+                <a href="#careers" class="primary-link">Explore Careers →</a>
+            </div>
+
+            <h2 class="section-title">Your Overview</h2>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span>📚</span>
+                    <p>Skills Completed</p>
+                    <h2 id="skillsCompleted">0</h2>
+                </div>
+
+                <div class="stat-card">
+                    <span>🎯</span>
+                    <p>Learning Progress</p>
+                    <h2 id="overallProgress">0%</h2>
+                </div>
+
+                <div class="stat-card">
+                    <span>💼</span>
+                    <p>Careers Explored</p>
+                    <h2 id="careersExplored">0</h2>
+                </div>
+
+                <div class="stat-card">
+                    <span>📁</span>
+                    <p>Projects Viewed</p>
+                    <h2 id="projectsViewed">0</h2>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <h2>Start Your Career Journey</h2>
+                <p>Choose a career path and discover the skills you need to succeed.</p>
+                <a href="#careers" class="text-link">Discover Career Paths →</a>
+            </div>
+
+            <div class="content-card">
+                <h2>Daily Motivation</h2>
+                <p>"Small steps every day lead to big achievements."</p>
             </div>
         </section>
 
-        <section class="card">
-            <h3>Your Learning Progress</h3>
-            <div class="progress-info">
-                <span id="progress">0% Completed</span>
-                <span id="skillCount">0 / 0 skills</span>
-            </div>
-            <progress id="progressBar" value="0" max="100"></progress>
+        <section id="careers" class="page-section">
+            <h1>Explore Careers</h1>
+            <p>Discover career paths and the skills required for each one.</p>
+            <div id="careerContainer" class="career-grid"></div>
         </section>
+
+        <section id="roadmap" class="page-section">
+            <h1>Learning Roadmap</h1>
+            <p>Choose a career to follow your learning journey.</p>
+            <div id="roadmapContainer" class="content-card">
+                Select a career from Explore Careers.
+            </div>
+        </section>
+
+        <section id="projects" class="page-section">
+            <h1>Project Ideas</h1>
+            <p>Build practical projects and strengthen your portfolio.</p>
+            <div id="projectContainer" class="career-grid"></div>
+        </section>
+
+        <section id="placement" class="page-section">
+            <h1>Placement Preparation</h1>
+            <p>Practice interview questions and improve your aptitude skills.</p>
+
+            <div class="content-card">
+                <h2>Interview Practice</h2>
+                <div id="interviewContainer"></div>
+            </div>
+
+            <div class="content-card">
+                <h2>Aptitude Practice</h2>
+                <div id="aptitudeContainer"></div>
+            </div>
+        </section>
+
         <footer>
-            <p>Made for students, built for the future.</p>
-            <p>© 2026 NextStep</p>
+            <p>© 2026 NextStep | Student Career Development Portal</p>
         </footer>
-    </main>
 
-    <script src="script.js"></script>
+    </main>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
