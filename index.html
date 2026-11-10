@@ -1,236 +1,310 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="NextStep - Student Future Skills and Career Preparation Portal">
-  <title>NextStep | Student Career Portal</title>
+  <meta name="theme-color" content="#101a35">
+  <meta name="description" content="NextStep - Your student career and future skills platform.">
+  <title>NextStep | Student Career Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-  <script src="script.js" defer></script>
 </head>
 <body>
-  <div class="app">
+
+  <!-- LOGIN / REGISTER -->
+  <section id="authScreen" class="auth-screen">
+    <div class="auth-brand">
+      <div class="brand-symbol">N<span>↗</span></div>
+      <span class="brand-name">NextStep</span>
+    </div>
+
+    <div class="auth-card">
+      <div class="auth-heading">
+        <span class="eyebrow">YOUR FUTURE STARTS HERE</span>
+        <h1 id="authTitle">Welcome back<span>.</span></h1>
+        <p id="authSubtitle">Sign in to continue your journey.</p>
+      </div>
+
+      <form id="authForm">
+        <div id="nameField" class="form-group hidden">
+          <label for="authName">Full name</label>
+          <input type="text" id="authName" placeholder="Enter your name">
+        </div>
+
+        <div class="form-group">
+          <label for="authEmail">Email address</label>
+          <input type="email" id="authEmail" placeholder="you@example.com" required>
+        </div>
+
+        <div class="form-group">
+          <label for="authPassword">Password</label>
+          <input type="password" id="authPassword" placeholder="Enter password" minlength="6" required>
+        </div>
+
+        <p id="authMessage" class="message" aria-live="polite"></p>
+        <button type="submit" id="authSubmit" class="btn btn-primary full-btn">Sign In <span>→</span></button>
+      </form>
+
+      <p class="auth-switch">
+        <span id="switchText">New to NextStep?</span>
+        <button id="switchAuth" class="text-btn" type="button">Create account</button>
+      </p>
+      <p class="demo-note">Demo account mode · Data stays in this browser</p>
+    </div>
+    <div class="auth-decoration decoration-one"></div>
+    <div class="auth-decoration decoration-two"></div>
+  </section>
+
+  <!-- MAIN APPLICATION -->
+  <div id="appScreen" class="app-shell hidden">
+
     <aside class="sidebar" id="sidebar">
-      <a href="#" class="brand" data-page="dashboard">
-        <span class="brand-icon">N</span>
-        <span>NextStep<small>YOUR FUTURE STARTS HERE</small></span>
+      <a href="#dashboard" class="brand" data-page="dashboard">
+        <div class="brand-symbol small">N<span>↗</span></div>
+        <span class="brand-name">NextStep</span>
       </a>
 
-      <div class="nav-heading">WORKSPACE</div>
-      <nav class="navigation">
-        <button class="nav-link active" data-page="dashboard"><span>▦</span> Dashboard</button>
-        <button class="nav-link" data-page="careers"><span>◈</span> Explore Careers</button>
-        <button class="nav-link" data-page="roadmap"><span>⌁</span> Learning Roadmap</button>
+      <div class="sidebar-label">WORKSPACE</div>
+      <nav class="main-nav">
+        <button class="nav-link active" data-page="dashboard"><span>⌂</span> Dashboard</button>
+        <button class="nav-link" data-page="careers"><span>◎</span> Career Explorer</button>
+        <button class="nav-link" data-page="skills"><span>✳</span> Skill Development</button>
+        <button class="nav-link" data-page="roadmaps"><span>⌁</span> Learning Roadmaps</button>
         <button class="nav-link" data-page="projects"><span>▣</span> Project Studio</button>
-        <button class="nav-link" data-page="placement"><span>◎</span> Placement Center</button>
+        <button class="nav-link" data-page="placement"><span>↗</span> Placement Prep</button>
         <button class="nav-link" data-page="resources"><span>▤</span> Resource Library</button>
       </nav>
 
+      <div class="sidebar-label secondary-label">PERSONAL</div>
+      <nav class="main-nav">
+        <button class="nav-link" data-page="profile"><span>◉</span> My Profile</button>
+        <button class="nav-link" data-page="about"><span>ⓘ</span> About Us</button>
+        <button class="nav-link" data-page="settings"><span>⚙</span> Settings</button>
+      </nav>
+
       <div class="sidebar-bottom">
-        <div class="sidebar-note">
-          <span>✦</span>
-          <h3>Keep moving forward.</h3>
-          <p>Small steps today create big opportunities tomorrow.</p>
+        <div class="sidebar-promo">
+          <div class="promo-icon">✦</div>
+          <strong>Your next step matters.</strong>
+          <p>Small progress every day creates a brighter future.</p>
         </div>
-        <p class="sidebar-footer">NEXTSTEP © 2026</p>
+        <button class="user-mini" id="sidebarProfile">
+          <div class="avatar" id="sidebarAvatar">S</div>
+          <div class="user-mini-info">
+            <strong id="sidebarName">Student</strong>
+            <span>Student account</span>
+          </div>
+          <span class="user-more">•••</span>
+        </button>
       </div>
     </aside>
 
-    <main class="main">
+    <main class="main-content">
       <header class="topbar">
-        <div class="topbar-left">
-          <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">☰</button>
-          <div>
-            <p class="eyebrow">STUDENT CAREER PORTAL</p>
-            <h1 id="pageTitle">Dashboard</h1>
-          </div>
-        </div>
-        <div class="topbar-right">
-          <span class="status-dot"></span>
-          <span class="welcome">Your learning journey</span>
+        <button class="mobile-menu" id="menuToggle" aria-label="Toggle menu">☰</button>
+        <div class="breadcrumb">Workspace <span>/</span> <strong id="pageName">Dashboard</strong></div>
+        <div class="topbar-actions">
+          <button class="icon-btn" id="themeToggle" aria-label="Toggle theme">☾</button>
+          <button class="top-profile" id="topProfile">
+            <div class="avatar small-avatar" id="topAvatar">S</div>
+            <span id="topName">Student</span>
+          </button>
         </div>
       </header>
 
-      <div class="content">
+      <div class="page-container">
 
         <!-- DASHBOARD -->
         <section class="page active" id="dashboard">
-          <div class="hero">
-            <div class="hero-content">
-              <span class="hero-tag">✦ YOUR NEXT CHAPTER STARTS HERE</span>
-              <h2>Build skills.<br>Shape your future.</h2>
-              <p>Explore careers, learn in-demand skills, build projects and prepare for your dream career.</p>
-              <button class="btn btn-light" data-go="careers">Explore Career Paths →</button>
+          <div class="welcome-row">
+            <div>
+              <span class="eyebrow">YOUR PERSONAL LEARNING SPACE</span>
+              <h1>Welcome back, <span id="welcomeName">Student</span> 👋</h1>
+              <p>Every small step takes you closer to your future.</p>
             </div>
-            <div class="hero-art" aria-hidden="true">
-              <div class="orbit orbit-one"></div>
-              <div class="orbit orbit-two"></div>
-              <div class="hero-symbol">N<span>✦</span></div>
-              <div class="float-card float-one">🎯 Career goals</div>
-              <div class="float-card float-two">🚀 Keep growing</div>
+            <button class="btn btn-primary" data-go="roadmaps">Explore learning paths <span>→</span></button>
+          </div>
+
+          <div class="hero-banner">
+            <div class="hero-content">
+              <span class="hero-tag">YOUR FUTURE. YOUR JOURNEY.</span>
+              <h2>Discover your potential.<br>Build your <span>next step.</span></h2>
+              <p>Explore careers, develop valuable skills and prepare for the opportunities ahead.</p>
+              <button class="btn hero-btn" data-go="careers">Explore careers <span>→</span></button>
+            </div>
+            <div class="hero-art">
+              <div class="hero-orbit orbit-one"></div>
+              <div class="hero-orbit orbit-two"></div>
+              <div class="hero-center">N<span>↗</span></div>
+              <div class="floating-chip chip-one">✦ Learn</div>
+              <div class="floating-chip chip-two">↗ Grow</div>
+              <div class="floating-chip chip-three">✓ Build</div>
             </div>
           </div>
 
           <div class="section-heading">
-            <div><p class="eyebrow">YOUR OVERVIEW</p><h2>Progress at a glance</h2></div>
-            <span class="muted">Your personal learning dashboard</span>
+            <div><h2>Your progress</h2><p>Keep moving forward, one step at a time.</p></div>
           </div>
 
           <div class="stats-grid">
-            <article class="stat-card"><div class="stat-icon purple">✓</div><p>Skills completed</p><h3 id="skillsCompleted">0</h3><small>Across all career paths</small></article>
-            <article class="stat-card"><div class="stat-icon blue">↗</div><p>Overall progress</p><h3 id="overallProgress">0%</h3><small>Your learning progress</small></article>
-            <article class="stat-card"><div class="stat-icon orange">◇</div><p>Careers explored</p><h3 id="careersExplored">0</h3><small>Career paths discovered</small></article>
-            <article class="stat-card"><div class="stat-icon green">▣</div><p>Projects completed</p><h3 id="projectsCompleted">0</h3><small>Practical experience</small></article>
+            <article class="stat-card">
+              <div class="stat-icon blue">✳</div>
+              <span>Skills completed</span>
+              <strong id="skillCount">0</strong>
+              <small>Keep developing your skills</small>
+            </article>
+            <article class="stat-card">
+              <div class="stat-icon purple">⌁</div>
+              <span>Learning progress</span>
+              <strong id="progressPercent">0%</strong>
+              <small>Based on completed skills</small>
+            </article>
+            <article class="stat-card">
+              <div class="stat-icon orange">▣</div>
+              <span>Projects created</span>
+              <strong id="projectCount">0</strong>
+              <small>Your work, your portfolio</small>
+            </article>
+            <article class="stat-card">
+              <div class="stat-icon green">✦</div>
+              <span>Saved resources</span>
+              <strong id="savedCount">0</strong>
+              <small>Knowledge worth keeping</small>
+            </article>
           </div>
 
           <div class="dashboard-grid">
-            <article class="panel readiness-panel">
-              <div class="panel-heading"><div><p class="eyebrow">YOUR DEVELOPMENT</p><h3>Career readiness progress</h3></div><span class="panel-icon">✦</span></div>
-              <div class="readiness-number" id="readinessPercentage">0%</div>
-              <p class="muted">Based on the skills you have checked off in your roadmaps. This is a learning indicator, not a job-placement prediction.</p>
-              <div class="progress-track"><div class="progress-fill" id="readinessBar"></div></div>
-              <div class="progress-labels"><span>Getting started</span><span>Keep improving</span></div>
+            <article class="panel progress-panel">
+              <div class="panel-heading"><div><h3>Skill development</h3><p>Your learning journey at a glance.</p></div><button class="text-btn" data-go="skills">View all →</button></div>
+              <div class="progress-circle-wrap">
+                <div class="progress-circle" id="progressCircle"><div><strong id="circlePercent">0%</strong><span>Completed</span></div></div>
+                <div class="progress-description"><strong id="progressMessage">Your journey begins here!</strong><p>Complete skills to build your progress and unlock your potential.</p></div>
+              </div>
             </article>
-
-            <article class="panel recommendation-panel">
-              <p class="eyebrow">SUGGESTED NEXT STEP</p>
-              <h3>Make your next move</h3>
-              <div id="recommendations"></div>
+            <article class="panel goal-panel">
+              <div class="panel-heading"><div><h3>Weekly learning goal</h3><p>Make time for your future.</p></div><span class="panel-icon">◎</span></div>
+              <div class="goal-number"><strong id="goalDone">0</strong><span>/ <span id="goalTarget">5</span> skills</span></div>
+              <div class="progress-track"><div id="goalBar" class="progress-fill"></div></div>
+              <p class="muted-text">Complete your weekly learning target.</p>
+              <button class="btn btn-outline full-btn" data-go="settings">Manage goal</button>
             </article>
           </div>
 
-          <div class="dashboard-grid lower-grid">
-            <article class="panel">
-              <div class="panel-heading"><div><p class="eyebrow">SKILL DEVELOPMENT</p><h3>Career breakdown</h3></div></div>
-              <div id="careerBreakdown" class="breakdown-list"></div>
-            </article>
-            <article class="panel">
-              <div class="panel-heading"><div><p class="eyebrow">YOUR JOURNEY</p><h3>Recent activity</h3></div></div>
-              <ul id="activityList" class="activity-list"></ul>
-            </article>
+          <div class="section-heading"><div><h2>Quick access</h2><p>Pick up where you want to grow.</p></div></div>
+          <div class="quick-grid">
+            <button class="quick-card" data-go="careers"><span class="quick-icon blue">◎</span><strong>Find your career</strong><small>Explore possibilities →</small></button>
+            <button class="quick-card" data-go="skills"><span class="quick-icon purple">✳</span><strong>Learn new skills</strong><small>Build your abilities →</small></button>
+            <button class="quick-card" data-go="projects"><span class="quick-icon orange">▣</span><strong>Build projects</strong><small>Show what you can do →</small></button>
+            <button class="quick-card" data-go="placement"><span class="quick-icon green">↗</span><strong>Prepare for jobs</strong><small>Get career ready →</small></button>
           </div>
         </section>
 
         <!-- CAREERS -->
         <section class="page" id="careers">
-          <div class="page-intro">
-            <p class="eyebrow">FIND YOUR DIRECTION</p>
-            <h2>Explore career possibilities</h2>
-            <p>Discover different technology career paths and the skills required to get started.</p>
-          </div>
-          <div class="filter-bar">
-            <input id="careerSearch" type="search" placeholder="Search career paths...">
-            <select id="careerFilter">
-              <option value="all">All categories</option>
-              <option value="development">Development</option>
-              <option value="data">Data & AI</option>
-              <option value="design">Design</option>
-              <option value="security">Cybersecurity</option>
-              <option value="cloud">Cloud</option>
-            </select>
-          </div>
-          <div id="careerContainer" class="card-grid"></div>
-          <div id="careerDetail" class="panel detail-panel">
-            <p class="muted">Select a career above to explore its skills and project ideas.</p>
-          </div>
+          <div class="page-intro"><span class="eyebrow">FIND YOUR DIRECTION</span><h1>Career Explorer</h1><p>Discover career paths across industries and find what excites you.</p></div>
+          <div class="filter-row"><input id="careerSearch" type="search" placeholder="Search careers..."><select id="careerCategory"><option value="all">All categories</option><option>Technology</option><option>Business</option><option>Creative</option><option>Science</option><option>Public Service</option></select></div>
+          <div class="content-grid" id="careerGrid"></div>
         </section>
 
-        <!-- ROADMAP -->
-        <section class="page" id="roadmap">
-          <div class="page-intro">
-            <p class="eyebrow">LEARN STEP BY STEP</p>
-            <h2>Your learning roadmap</h2>
-            <p>Choose a career and track the skills you learn along the way.</p>
-          </div>
-          <div class="panel roadmap-panel">
-            <label for="roadmapCareer">Choose your career path</label>
-            <select id="roadmapCareer"></select>
-            <div id="roadmapSummary" class="roadmap-summary"></div>
-            <div id="roadmapContainer" class="roadmap-list"></div>
-          </div>
+        <!-- SKILLS -->
+        <section class="page" id="skills">
+          <div class="page-intro"><span class="eyebrow">INVEST IN YOURSELF</span><h1>Skill Development</h1><p>Build the abilities that help you succeed in college and beyond.</p></div>
+          <div class="filter-row"><input id="skillSearch" type="search" placeholder="Search skills..."><select id="skillCategory"><option value="all">All skills</option><option>Technical</option><option>Professional</option><option>Creative</option><option>Analytical</option></select></div>
+          <div class="content-grid" id="skillGrid"></div>
+        </section>
+
+        <!-- ROADMAPS -->
+        <section class="page" id="roadmaps">
+          <div class="page-intro"><span class="eyebrow">LEARN WITH DIRECTION</span><h1>Learning Roadmaps</h1><p>Follow structured paths to develop skills from beginner to confident learner.</p></div>
+          <div class="content-grid" id="roadmapGrid"></div>
         </section>
 
         <!-- PROJECTS -->
         <section class="page" id="projects">
-          <div class="page-intro">
-            <p class="eyebrow">TURN KNOWLEDGE INTO EXPERIENCE</p>
-            <h2>Project studio</h2>
-            <p>Build practical projects to strengthen your portfolio and demonstrate your skills.</p>
+          <div class="page-intro page-intro-row"><div><span class="eyebrow">TURN IDEAS INTO REALITY</span><h1>Project Studio</h1><p>Create a portfolio of work that demonstrates your abilities.</p></div><button class="btn btn-primary" id="addProjectBtn">＋ Add project</button></div>
+          <div id="projectForm" class="panel hidden">
+            <h3>Add a new project</h3>
+            <form id="newProjectForm" class="project-form">
+              <input id="projectTitle" placeholder="Project title" required>
+              <input id="projectTech" placeholder="Technologies used">
+              <textarea id="projectDescription" placeholder="Describe your project..." rows="3" required></textarea>
+              <input id="projectLink" type="url" placeholder="Project URL (optional)">
+              <div class="form-actions"><button type="button" class="btn btn-outline" id="cancelProject">Cancel</button><button class="btn btn-primary" type="submit">Save project</button></div>
+            </form>
           </div>
-          <div class="filter-bar">
-            <select id="projectCareer">
-              <option value="all">All career paths</option>
-              <option value="developer">Full Stack Development</option>
-              <option value="analyst">Data Analytics</option>
-              <option value="designer">UI/UX Design</option>
-              <option value="ai">AI & Machine Learning</option>
-              <option value="cyber">Cybersecurity</option>
-              <option value="cloud">Cloud Engineering</option>
-            </select>
-            <select id="projectLevel">
-              <option value="all">All levels</option>
-              <option value="Beginner">Beginner</option>
-              <option value="Intermediate">Intermediate</option>
-              <option value="Advanced">Advanced</option>
-            </select>
-          </div>
-          <div id="projectContainer" class="card-grid"></div>
+          <div class="content-grid" id="projectGrid"></div>
         </section>
 
         <!-- PLACEMENT -->
         <section class="page" id="placement">
-          <div class="page-intro">
-            <p class="eyebrow">PREPARE WITH CONFIDENCE</p>
-            <h2>Placement center</h2>
-            <p>Practise interview questions and test your aptitude skills.</p>
-          </div>
-          <div class="panel">
-            <h3>Interview preparation</h3>
-            <p class="muted">Choose a topic and reveal sample answers to practise.</p>
-            <select id="interviewCategory">
-              <option value="technical">Technical interview</option>
-              <option value="hr">HR interview</option>
-              <option value="aptitude">Basic aptitude</option>
-            </select>
-            <div id="interviewContainer" class="interview-list"></div>
-          </div>
-          <div class="panel quiz-panel">
-            <p class="eyebrow">TEST YOUR KNOWLEDGE</p>
-            <h3>Aptitude challenge</h3>
-            <p class="muted">Answer all five questions and check your score.</p>
-            <div id="aptitudeContainer"></div>
+          <div class="page-intro"><span class="eyebrow">PREPARE WITH CONFIDENCE</span><h1>Placement Preparation</h1><p>Practice essential skills and get ready for your next opportunity.</p></div>
+          <div class="content-grid">
+            <article class="feature-card"><div class="feature-icon blue">▤</div><h3>Resume building</h3><p>Organize your education, skills and projects into a professional resume.</p><button class="btn btn-outline" data-go="profile">View my profile →</button></article>
+            <article class="feature-card"><div class="feature-icon purple">✎</div><h3>Interview practice</h3><p>Review common interview topics and prepare thoughtful answers.</p><a class="btn btn-outline" href="https://www.themuse.com/advice/interview-questions-and-answers" target="_blank" rel="noopener">Explore questions →</a></article>
+            <article class="feature-card"><div class="feature-icon orange">◈</div><h3>Aptitude practice</h3><p>Strengthen your logical reasoning and problem-solving skills.</p><a class="btn btn-outline" href="https://www.indiabix.com/" target="_blank" rel="noopener">Practice aptitude →</a></article>
+            <article class="feature-card"><div class="feature-icon green">◎</div><h3>Communication</h3><p>Improve professional communication and workplace confidence.</p><a class="btn btn-outline" href="https://www.toastmasters.org/" target="_blank" rel="noopener">Explore resources →</a></article>
           </div>
         </section>
 
         <!-- RESOURCES -->
         <section class="page" id="resources">
-          <div class="page-intro">
-            <p class="eyebrow">LEARN FROM TRUSTED SOURCES</p>
-            <h2>Resource library</h2>
-            <p>Explore documentation, tutorials and learning platforms to develop your skills.</p>
-          </div>
-          <div class="filter-bar">
-            <input id="resourceSearch" type="search" placeholder="Search learning resources...">
-            <select id="resourceCategory">
-              <option value="all">All categories</option>
-              <option value="Web Development">Web Development</option>
-              <option value="Programming">Programming</option>
-              <option value="Data Science">Data Science</option>
-              <option value="AI and ML">AI and ML</option>
-              <option value="Cloud">Cloud</option>
-              <option value="Design">Design</option>
-              <option value="Cybersecurity">Cybersecurity</option>
-              <option value="Interview Preparation">Interview Preparation</option>
-              <option value="Tools">Tools</option>
-            </select>
-          </div>
-          <div id="resourceContainer" class="card-grid"></div>
+          <div class="page-intro"><span class="eyebrow">KNOWLEDGE AT YOUR FINGERTIPS</span><h1>Resource Library</h1><p>Explore trusted learning platforms and save useful resources.</p></div>
+          <div class="filter-row"><input id="resourceSearch" type="search" placeholder="Search resources..."><select id="resourceCategory"><option value="all">All categories</option><option>Programming</option><option>Data</option><option>Cloud</option><option>Design</option><option>Security</option><option>General</option></select></div>
+          <div class="content-grid" id="resourceGrid"></div>
         </section>
 
-        <footer class="main-footer">NextStep — Learn today. Lead tomorrow.</footer>
+        <!-- PROFILE -->
+        <section class="page" id="profile">
+          <div class="page-intro"><span class="eyebrow">YOUR PERSONAL SPACE</span><h1>My Profile</h1><p>Manage your details and celebrate your progress.</p></div>
+          <div class="panel profile-panel">
+            <div class="profile-top"><div class="avatar profile-avatar" id="profileAvatar">S</div><div><h2 id="profileDisplayName">Student</h2><p id="profileDisplayEmail">student@example.com</p></div></div>
+            <form id="profileForm" class="profile-form">
+              <div class="form-group"><label for="profileName">Full name</label><input id="profileName" required></div>
+              <div class="form-group"><label for="profileCollege">College</label><input id="profileCollege" placeholder="Your college name"></div>
+              <div class="form-group"><label for="profileBranch">Branch / Course</label><input id="profileBranch" placeholder="e.g. Computer Science, B.Com"></div>
+              <div class="form-group"><label for="profileYear">Year of study</label><select id="profileYear"><option value="">Select year</option><option>1st Year</option><option>2nd Year</option><option>3rd Year</option><option>4th Year</option><option>Postgraduate</option><option>Other</option></select></div>
+              <button class="btn btn-primary" type="submit">Save profile</button>
+            </form>
+          </div>
+          <div class="section-heading"><div><h2>Achievements</h2><p>Every milestone is worth celebrating.</p></div></div>
+          <div id="achievementGrid" class="content-grid"></div>
+        </section>
+
+        <!-- ABOUT -->
+        <section class="page" id="about">
+          <div class="page-intro"><span class="eyebrow">THE STORY BEHIND NEXTSTEP</span><h1>About Us</h1><p>Helping students turn ambition into action.</p></div>
+          <div class="about-hero">
+            <div class="brand-symbol about-symbol">N<span>↗</span></div>
+            <h2>Your future is not a destination.<br><span>It's a journey.</span></h2>
+            <p>NextStep is a student-focused career and future skills platform designed to help college students explore opportunities, develop practical abilities and prepare for their next chapter.</p>
+          </div>
+          <div class="content-grid about-grid">
+            <article class="feature-card"><div class="feature-icon blue">◎</div><h3>Our Mission</h3><p>Make career exploration and skill development more accessible to students from every academic background.</p></article>
+            <article class="feature-card"><div class="feature-icon purple">✦</div><h3>Our Vision</h3><p>Encourage lifelong learning, confidence and meaningful career preparation.</p></article>
+            <article class="feature-card"><div class="feature-icon green">↗</div><h3>Our Approach</h3><p>Combine guided learning, practical projects and trusted resources in one simple space.</p></article>
+          </div>
+          <div class="panel about-contact"><h3>Have suggestions?</h3><p>We'd love to hear your feedback and ideas for improving NextStep.</p><a href="mailto:nextstep@example.com" class="btn btn-primary">Send feedback →</a></div>
+        </section>
+
+        <!-- SETTINGS -->
+        <section class="page" id="settings">
+          <div class="page-intro"><span class="eyebrow">MAKE IT YOURS</span><h1>Settings</h1><p>Customize your NextStep experience.</p></div>
+          <div class="panel settings-panel">
+            <div class="setting-row"><div><strong>Appearance</strong><p>Choose your preferred theme.</p></div><button class="btn btn-outline" id="settingsTheme">Toggle theme ☾</button></div>
+            <div class="setting-row"><div><strong>Weekly learning goal</strong><p>Choose how many skills you'd like to complete each week.</p></div><select id="weeklyGoal"><option value="3">3 skills</option><option value="5">5 skills</option><option value="7">7 skills</option><option value="10">10 skills</option></select></div>
+            <div class="setting-row"><div><strong>Account</strong><p>Sign out of your current browser account.</p></div><button class="btn btn-danger" id="logoutBtn">Log out</button></div>
+            <p class="demo-warning">Demo version: account details are stored in this browser only. Do not use a real or reused password.</p>
+          </div>
+        </section>
+
+        <footer class="footer"><span>© 2026 NextStep. Learn · Build · Grow.</span><button data-go="about" class="text-btn">About NextStep</button></footer>
       </div>
     </main>
   </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="script.js"></script>
 </body>
 </html>
