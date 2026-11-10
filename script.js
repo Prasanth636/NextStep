@@ -1,162 +1,168 @@
 
-/* ==========================================
-   NEXTSTEP - STUDENT CAREER PLATFORM
-   Demo version using browser LocalStorage
-========================================== */
-alert("NextStep JavaScript is running!");
-const $ = (id) => document.getElementById(id);
-const DB_KEY = "nextstep_demo_accounts";
+"use strict";
+
+/* NEXTSTEP - CORE APPLICATION */
+
+const $ = id => document.getElementById(id);
+
+const ACCOUNT_KEY = "nextstep_demo_accounts";
 const SESSION_KEY = "nextstep_demo_session";
 
 let currentUser = null;
 let authMode = "login";
-let toastTimer;
-
-/* ---------- DEMO DATA ---------- */
-
-const careers = [
-  {name:"Frontend Developer",category:"Technology",icon:"💻",description:"Build responsive and interactive websites using modern web technologies.",skills:"HTML, CSS, JavaScript, React",url:"https://developer.mozilla.org/en-US/docs/Learn"},
-  {name:"Data Analyst",category:"Technology",icon:"📊",description:"Turn data into useful insights using analysis and visualization.",skills:"Excel, SQL, Python, Statistics",url:"https://www.kaggle.com/learn"},
-  {name:"Cybersecurity Analyst",category:"Technology",icon:"🛡️",description:"Help organizations identify security risks and protect digital systems.",skills:"Networking, Linux, Security",url:"https://owasp.org/"},
-  {name:"Cloud Engineer",category:"Technology",icon:"☁️",description:"Work with cloud infrastructure, deployment and scalable systems.",skills:"Linux, Networking, AWS",url:"https://skillbuilder.aws/"},
-  {name:"UI/UX Designer",category:"Creative",icon:"🎨",description:"Create intuitive digital experiences through research and design.",skills:"Figma, Design, Prototyping",url:"https://help.figma.com/"},
-  {name:"Digital Marketer",category:"Business",icon:"📱",description:"Help businesses reach audiences through digital channels.",skills:"SEO, Content, Analytics",url:"https://skillshop.withgoogle.com/"},
-  {name:"Financial Analyst",category:"Business",icon:"💹",description:"Analyze financial information to support business decisions.",skills:"Excel, Accounting, Analysis",url:"https://www.coursera.org/"},
-  {name:"Research Scientist",category:"Science",icon:"🔬",description:"Investigate questions, conduct experiments and develop knowledge.",skills:"Research, Statistics, Communication",url:"https://www.khanacademy.org/"},
-  {name:"Public Administration",category:"Public Service",icon:"🏛️",description:"Contribute to public services, policy and community development.",skills:"Communication, Governance, Analysis",url:"https://www.india.gov.in/"}
-];
 
 const skills = [
-  {name:"HTML & CSS",category:"Technical",icon:"🌐",description:"Learn the foundations of building and styling websites.",level:"Beginner",url:"https://developer.mozilla.org/en-US/docs/Learn_web_development"},
-  {name:"JavaScript",category:"Technical",icon:"⚡",description:"Understand programming fundamentals and interactive web applications.",level:"Beginner",url:"https://javascript.info/"},
-  {name:"Python Programming",category:"Technical",icon:"🐍",description:"Build programming fundamentals with a versatile language.",level:"Beginner",url:"https://docs.python.org/3/tutorial/"},
-  {name:"SQL & Databases",category:"Technical",icon:"🗄️",description:"Learn how to organize, query and manage data.",level:"Beginner",url:"https://sqlbolt.com/"},
-  {name:"Communication",category:"Professional",icon:"🗣️",description:"Improve speaking, listening and professional communication.",level:"Essential",url:"https://www.toastmasters.org/"},
-  {name:"Problem Solving",category:"Analytical",icon:"🧩",description:"Practice breaking down problems and developing logical solutions.",level:"Essential",url:"https://www.hackerrank.com/domains/algorithms"},
-  {name:"Data Analysis",category:"Analytical",icon:"📈",description:"Explore data analysis concepts and practical exercises.",level:"Intermediate",url:"https://www.kaggle.com/learn"},
-  {name:"UI/UX Design",category:"Creative",icon:"🎨",description:"Learn visual design, user research and prototyping.",level:"Beginner",url:"https://help.figma.com/"},
-  {name:"Git & GitHub",category:"Technical",icon:"🔧",description:"Understand version control and collaborative development.",level:"Beginner",url:"https://docs.github.com/en/get-started"},
-  {name:"Critical Thinking",category:"Analytical",icon:"💡",description:"Develop evidence-based thinking and decision-making.",level:"Essential",url:"https://www.coursera.org/"},
-  {name:"Teamwork",category:"Professional",icon:"🤝",description:"Learn collaboration, accountability and team communication.",level:"Essential",url:"https://www.atlassian.com/team-playbook"},
-  {name:"Presentation Skills",category:"Professional",icon:"🎤",description:"Present ideas clearly and confidently.",level:"Essential",url:"https://www.toastmasters.org/"}
+  ["HTML & CSS","Technical","🌐","Learn website structure and styling.","https://developer.mozilla.org/en-US/docs/Learn_web_development"],
+  ["JavaScript","Technical","⚡","Learn programming and interactive websites.","https://javascript.info/"],
+  ["Python","Technical","🐍","Learn Python programming fundamentals.","https://docs.python.org/3/tutorial/"],
+  ["SQL","Technical","🗄️","Learn database queries and management.","https://sqlbolt.com/"],
+  ["Communication","Professional","🗣️","Improve professional communication.","https://www.toastmasters.org/"],
+  ["Problem Solving","Analytical","🧩","Develop logical thinking skills.","https://www.hackerrank.com/domains/algorithms"],
+  ["Data Analysis","Analytical","📊","Learn data analysis and visualization.","https://www.kaggle.com/learn"],
+  ["UI/UX Design","Creative","🎨","Learn interface design and prototyping.","https://help.figma.com/"],
+  ["Git & GitHub","Technical","🐙","Learn version control.","https://docs.github.com/en/get-started"],
+  ["Critical Thinking","Analytical","💡","Develop better decision-making.","https://www.coursera.org/"],
+  ["Teamwork","Professional","🤝","Improve collaboration.","https://www.atlassian.com/team-playbook"],
+  ["Presentation Skills","Professional","🎤","Improve presentation confidence.","https://www.toastmasters.org/"]
+];
+
+const careers = [
+  ["Frontend Developer","Technology","💻","Build interactive websites.","HTML, CSS, JavaScript","https://roadmap.sh/frontend"],
+  ["Data Analyst","Technology","📊","Turn data into useful insights.","Python, SQL, Excel","https://roadmap.sh/data-analyst"],
+  ["Cybersecurity Analyst","Technology","🛡️","Help protect digital systems.","Networking, Linux, Security","https://roadmap.sh/cyber-security"],
+  ["Cloud Engineer","Technology","☁️","Work with cloud infrastructure.","Linux, Networking, AWS","https://roadmap.sh/devops"],
+  ["UI/UX Designer","Creative","🎨","Design useful digital experiences.","Figma, Research, Design","https://help.figma.com/"],
+  ["Digital Marketer","Business","📱","Help businesses reach audiences.","SEO, Content, Analytics","https://skillshop.withgoogle.com/"],
+  ["Financial Analyst","Business","💹","Analyze financial information.","Excel, Accounting, Analysis","https://www.coursera.org/"],
+  ["Research Scientist","Science","🔬","Explore questions through research.","Research, Statistics","https://www.khanacademy.org/"],
+  ["Public Administration","Public Service","🏛️","Contribute to public services.","Communication, Governance","https://www.india.gov.in/"]
 ];
 
 const roadmaps = [
-  {name:"Web Development",icon:"🌐",level:"Beginner to Advanced",duration:"12 weeks",description:"Learn to build websites from HTML and CSS to JavaScript and modern frameworks.",steps:["HTML fundamentals","CSS and responsive layouts","JavaScript basics","DOM and browser APIs","Git and GitHub","Build and publish a project"],url:"https://roadmap.sh/frontend"},
-  {name:"Python Developer",icon:"🐍",level:"Beginner to Intermediate",duration:"10 weeks",description:"Build programming knowledge and practical Python applications.",steps:["Python basics","Data structures","Functions and modules","Files and exceptions","Libraries and APIs","Build a Python project"],url:"https://roadmap.sh/python"},
-  {name:"Data Analytics",icon:"📊",level:"Beginner to Intermediate",duration:"10 weeks",description:"Develop skills in data preparation, analysis and visualization.",steps:["Spreadsheet fundamentals","Statistics basics","SQL queries","Python for data","Data visualization","Create a data project"],url:"https://roadmap.sh/ai-data-scientist"},
-  {name:"Cybersecurity",icon:"🛡️",level:"Beginner",duration:"12 weeks",description:"Explore computer networks, operating systems and security concepts.",steps:["Computer fundamentals","Networking basics","Linux fundamentals","Security principles","Web security basics","Practice in safe labs"],url:"https://roadmap.sh/cyber-security"},
-  {name:"UI/UX Design",icon:"🎨",level:"Beginner",duration:"8 weeks",description:"Learn design principles and create user-friendly experiences.",steps:["Design fundamentals","Color and typography","User research","Wireframing","Prototyping","Build a portfolio case study"],url:"https://www.figma.com/resource-library/"}
+  ["Web Development","🌐","12 weeks","Learn HTML, CSS, JavaScript and modern web development.","https://roadmap.sh/frontend"],
+  ["Python Developer","🐍","10 weeks","Learn Python fundamentals and practical applications.","https://roadmap.sh/python"],
+  ["Data Analytics","📊","10 weeks","Develop data preparation and visualization skills.","https://roadmap.sh/data-analyst"],
+  ["Cybersecurity","🛡️","12 weeks","Explore networks, operating systems and security.","https://roadmap.sh/cyber-security"],
+  ["UI/UX Design","🎨","8 weeks","Learn design principles and prototyping.","https://www.figma.com/resource-library/"]
 ];
 
 const resources = [
-  {name:"MDN Web Docs",category:"Programming",icon:"🌐",description:"Reliable documentation and tutorials for web development.",url:"https://developer.mozilla.org/"},
-  {name:"freeCodeCamp",category:"Programming",icon:"💻",description:"Free interactive coding lessons and certifications.",url:"https://www.freecodecamp.org/learn/"},
-  {name:"Python Documentation",category:"Programming",icon:"🐍",description:"Official Python tutorials and language documentation.",url:"https://docs.python.org/3/tutorial/"},
-  {name:"Kaggle Learn",category:"Data",icon:"📊",description:"Short practical courses in data science and machine learning.",url:"https://www.kaggle.com/learn"},
-  {name:"AWS Skill Builder",category:"Cloud",icon:"☁️",description:"Explore cloud computing training from AWS.",url:"https://skillbuilder.aws/"},
-  {name:"Figma Learn",category:"Design",icon:"🎨",description:"Guides for interface design and prototyping.",url:"https://help.figma.com/"},
-  {name:"OWASP",category:"Security",icon:"🛡️",description:"Open resources for web application security.",url:"https://owasp.org/"},
-  {name:"GitHub Docs",category:"Programming",icon:"🐙",description:"Learn GitHub workflows and collaborative development.",url:"https://docs.github.com/"},
-  {name:"Khan Academy",category:"General",icon:"📚",description:"Free lessons across mathematics, science and other subjects.",url:"https://www.khanacademy.org/"},
-  {name:"NPTEL",category:"General",icon:"🎓",description:"Online courses from Indian institutes and educators.",url:"https://nptel.ac.in/"},
-  {name:"Google Skillshop",category:"General",icon:"🔎",description:"Training resources for Google's professional tools.",url:"https://skillshop.withgoogle.com/"},
-  {name:"roadmap.sh",category:"Programming",icon:"🗺️",description:"Community-maintained visual learning roadmaps.",url:"https://roadmap.sh/"}
+  ["MDN Web Docs","Programming","🌐","Web development tutorials and documentation.","https://developer.mozilla.org/"],
+  ["freeCodeCamp","Programming","💻","Free interactive coding lessons.","https://www.freecodecamp.org/learn/"],
+  ["Python Documentation","Programming","🐍","Official Python tutorials.","https://docs.python.org/3/tutorial/"],
+  ["Kaggle Learn","Data","📊","Practical data science courses.","https://www.kaggle.com/learn"],
+  ["AWS Skill Builder","Cloud","☁️","Cloud computing training.","https://skillbuilder.aws/"],
+  ["Figma Learn","Design","🎨","Design and prototyping guides.","https://help.figma.com/"],
+  ["OWASP","Security","🛡️","Web application security resources.","https://owasp.org/"],
+  ["GitHub Docs","Programming","🐙","Learn GitHub and version control.","https://docs.github.com/"],
+  ["Khan Academy","General","📚","Free educational lessons.","https://www.khanacademy.org/"],
+  ["NPTEL","General","🎓","Courses from Indian institutions.","https://nptel.ac.in/"],
+  ["Google Skillshop","General","🔎","Professional digital skills training.","https://skillshop.withgoogle.com/"],
+  ["roadmap.sh","Programming","🗺️","Visual learning roadmaps.","https://roadmap.sh/"]
 ];
 
-/* ---------- STORAGE ---------- */
+/* STORAGE */
 
-function readAccounts() {
+function getAccounts() {
   try {
-    const data = JSON.parse(localStorage.getItem(DB_KEY) || "{}");
+    const data = JSON.parse(localStorage.getItem(ACCOUNT_KEY) || "{}");
     return data && typeof data === "object" && !Array.isArray(data) ? data : {};
   } catch {
     return {};
   }
 }
 
-function saveAccounts(accounts) {
-  localStorage.setItem(DB_KEY, JSON.stringify(accounts));
+function saveAccounts(data) {
+  localStorage.setItem(ACCOUNT_KEY, JSON.stringify(data));
 }
 
-function userKey() {
-  return "nextstep_user_" + currentUser.email.toLowerCase();
-}
-
-function readUserData() {
-  try {
-    return JSON.parse(localStorage.getItem(userKey())) || {};
-  } catch {
-    return {};
-  }
-}
-
-function saveUserData(data) {
-  localStorage.setItem(userKey(), JSON.stringify(data));
+function storageKey() {
+  return "nextstep_profile_" + currentUser.email;
 }
 
 function getData() {
-  return {
-    name: currentUser.name || "Student",
-    college: "",
-    branch: "",
-    year: "",
-    skills: [],
-    projects: [],
-    saved: [],
-    career: "",
-    goal: 5,
-    ...(readUserData())
-  };
+  try {
+    return {
+      name: currentUser.name,
+      college: "",
+      branch: "",
+      year: "",
+      skills: [],
+      projects: [],
+      saved: [],
+      goal: 5,
+      ...(JSON.parse(localStorage.getItem(storageKey()) || "{}"))
+    };
+  } catch {
+    return {
+      name: currentUser.name,
+      college: "",
+      branch: "",
+      year: "",
+      skills: [],
+      projects: [],
+      saved: [],
+      goal: 5
+    };
+  }
+}
+
+function saveData(data) {
+  localStorage.setItem(storageKey(), JSON.stringify(data));
 }
 
 function updateData(changes) {
   const data = getData();
   Object.assign(data, changes);
-  saveUserData(data);
+  saveData(data);
   return data;
 }
 
-/* ---------- UTILITIES ---------- */
-
-function escapeHTML(value) {
+function safe(value) {
   return String(value ?? "").replace(/[&<>"']/g, char => ({
-    "&":"&amp;", "<":"&lt;", ">":"&gt;",
-    '"':"&quot;", "'":"&#039;"
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
   })[char]);
 }
 
-function validURL(value) {
-  try {
-    const url = new URL(value);
-    return url.protocol === "https:" || url.protocol === "http:";
-  } catch {
-    return false;
-  }
-}
-
-function toast(message) {
+function notify(message) {
   const box = $("toast");
   if (!box) return;
   box.textContent = message;
   box.classList.add("show");
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => box.classList.remove("show"), 2600);
+  setTimeout(() => box.classList.remove("show"), 2500);
 }
 
-/* ---------- AUTHENTICATION DEMO ---------- */
+/* LOGIN AND REGISTRATION */
 
 function setAuthMode(mode) {
   authMode = mode;
-  $("authTitle").innerHTML = mode === "login" ? 'Welcome back<span>.</span>' : 'Create your account<span>.</span>';
+  $("authTitle").innerHTML = mode === "login"
+    ? 'Welcome back<span>.</span>'
+    : 'Create your account<span>.</span>';
+
   $("authSubtitle").textContent = mode === "login"
     ? "Sign in to continue your journey."
     : "Start building your future with NextStep.";
+
   $("nameField").classList.toggle("hidden", mode === "login");
   $("authName").required = mode === "register";
-  $("authSubmit").innerHTML = mode === "login" ? 'Sign In <span>→</span>' : 'Create Account <span>→</span>';
-  $("switchText").textContent = mode === "login" ? "New to NextStep?" : "Already have an account?";
-  $("switchAuth").textContent = mode === "login" ? "Create account" : "Sign in";
+
+  $("authSubmit").innerHTML = mode === "login"
+    ? 'Sign In <span>→</span>'
+    : 'Create Account <span>→</span>';
+
+  $("switchText").textContent = mode === "login"
+    ? "New to NextStep?"
+    : "Already have an account?";
+
+  $("switchAuth").textContent = mode === "login"
+    ? "Create account"
+    : "Sign in";
+
   $("authMessage").textContent = "";
 }
 
@@ -173,44 +179,55 @@ $("authForm").addEventListener("submit", event => {
 
   if (!email || !password) return;
 
-  const accounts = readAccounts();
+  const accounts = getAccounts();
 
   if (authMode === "register") {
     if (!name) {
-      $("authMessage").textContent = "Please enter your full name.";
-      return;
-    }
-    if (password.length < 6) {
-      $("authMessage").textContent = "Password must contain at least 6 characters.";
-      return;
-    }
-    if (accounts[email]) {
-      $("authMessage").textContent = "An account with this email already exists.";
+      $("authMessage").textContent = "Please enter your name.";
       return;
     }
 
-    // Demo only: never use real or reused passwords here.
-    accounts[email] = { name, password };
+    if (password.length < 6) {
+      $("authMessage").textContent = "Password must have at least 6 characters.";
+      return;
+    }
+
+    if (accounts[email]) {
+      $("authMessage").textContent = "This email is already registered. Please sign in.";
+      return;
+    }
+
+    accounts[email] = { name: name, password: password };
     saveAccounts(accounts);
 
-    currentUser = { email, name };
+    currentUser = { email: email, name: name };
     localStorage.setItem(SESSION_KEY, email);
     openApp();
-    toast("Welcome to NextStep, " + name + "!");
+    notify("Welcome to NextStep!");
     return;
   }
 
   const account = accounts[email];
+
   if (!account || account.password !== password) {
     $("authMessage").textContent = "Incorrect email or password.";
     return;
   }
 
-  currentUser = { email, name: account.name };
+  currentUser = { email: email, name: account.name };
   localStorage.setItem(SESSION_KEY, email);
   openApp();
-  toast("Welcome back!");
+  notify("Welcome back!");
 });
+
+/* APPLICATION */
+
+function openApp() {
+  $("authScreen").classList.add("hidden");
+  $("appScreen").classList.remove("hidden");
+  renderAll();
+  navigate("dashboard");
+}
 
 function logout() {
   localStorage.removeItem(SESSION_KEY);
@@ -219,19 +236,11 @@ function logout() {
   $("authScreen").classList.remove("hidden");
   $("authForm").reset();
   setAuthMode("login");
-  $("sidebar").classList.remove("open");
 }
 
-/* ---------- APPLICATION ---------- */
+$("logoutBtn").addEventListener("click", logout);
 
-function openApp() {
-  if (!currentUser) return;
-  $("authScreen").classList.add("hidden");
-  $("appScreen").classList.remove("hidden");
-  renderUser();
-  renderAll();
-  navigate("dashboard");
-}
+/* USER PROFILE */
 
 function renderUser() {
   const data = getData();
@@ -241,19 +250,45 @@ function renderUser() {
   $("welcomeName").textContent = name.split(" ")[0];
   $("sidebarName").textContent = name;
   $("topName").textContent = name.split(" ")[0];
+
   $("sidebarAvatar").textContent = initial;
   $("topAvatar").textContent = initial;
   $("profileAvatar").textContent = initial;
+
   $("profileDisplayName").textContent = name;
   $("profileDisplayEmail").textContent = currentUser.email;
+
   $("profileName").value = name;
-  $("profileCollege").value = data.college;
-  $("profileBranch").value = data.branch;
-  $("profileYear").value = data.year;
-  $("weeklyGoal").value = String(data.goal);
+  $("profileCollege").value = data.college || "";
+  $("profileBranch").value = data.branch || "";
+  $("profileYear").value = data.year || "";
+  $("weeklyGoal").value = String(data.goal || 5);
 }
 
-/* ---------- NAVIGATION ---------- */
+$("profileForm").addEventListener("submit", event => {
+  event.preventDefault();
+
+  const name = $("profileName").value.trim();
+  if (!name) return;
+
+  const accounts = getAccounts();
+  accounts[currentUser.email].name = name;
+  saveAccounts(accounts);
+
+  currentUser.name = name;
+
+  updateData({
+    name,
+    college: $("profileCollege").value.trim(),
+    branch: $("profileBranch").value.trim(),
+    year: $("profileYear").value
+  });
+
+  renderUser();
+  notify("Profile saved!");
+});
+
+/* NAVIGATION */
 
 function navigate(page) {
   const target = $(page);
@@ -268,7 +303,7 @@ function navigate(page) {
 
   $("pageName").textContent = target.querySelector("h1")?.textContent || "Dashboard";
   $("sidebar").classList.remove("open");
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  window.scrollTo(0, 0);
 }
 
 document.addEventListener("click", event => {
@@ -286,18 +321,10 @@ $("menuToggle").addEventListener("click", () => {
   $("sidebar").classList.toggle("open");
 });
 
-document.addEventListener("click", event => {
-  if (window.innerWidth > 800) return;
-  if (!event.target.closest("#sidebar") && !event.target.closest("#menuToggle")) {
-    $("sidebar").classList.remove("open");
-  }
-});
-
 $("topProfile").addEventListener("click", () => navigate("profile"));
 $("sidebarProfile").addEventListener("click", () => navigate("profile"));
-$("logoutBtn").addEventListener("click", logout);
 
-/* ---------- THEME ---------- */
+/* THEME */
 
 function setTheme(dark) {
   document.body.classList.toggle("dark", dark);
@@ -313,30 +340,56 @@ function toggleTheme() {
 $("themeToggle").addEventListener("click", toggleTheme);
 $("settingsTheme").addEventListener("click", toggleTheme);
 
-/* ---------- SKILL DEVELOPMENT ---------- */
+/* DASHBOARD */
+
+function renderDashboard() {
+  const data = getData();
+  const count = data.skills.length;
+  const percent = Math.round(count / skills.length * 100);
+  const goal = Number(data.goal) || 5;
+
+  $("skillCount").textContent = count;
+  $("progressPercent").textContent = percent + "%";
+  $("circlePercent").textContent = percent + "%";
+  $("projectCount").textContent = data.projects.length;
+  $("savedCount").textContent = data.saved.length;
+
+  $("progressCircle").style.background =
+    `conic-gradient(var(--primary) ${percent}%, var(--surface-2) ${percent}%)`;
+
+  $("progressMessage").textContent = count
+    ? "You're making progress!"
+    : "Your journey begins here!";
+
+  $("goalDone").textContent = Math.min(count, goal);
+  $("goalTarget").textContent = goal;
+  $("goalBar").style.width = Math.min(count / goal * 100, 100) + "%";
+}
+
+/* SKILLS */
 
 function renderSkills() {
-  const data = getData();
-  const search = ($("skillSearch")?.value || "").toLowerCase();
-  const category = $("skillCategory")?.value || "all";
+  const search = $("skillSearch").value.toLowerCase();
+  const category = $("skillCategory").value;
+  const completed = getData().skills;
 
   const list = skills.filter(item =>
-    (category === "all" || item.category === category) &&
-    (item.name + item.description + item.category).toLowerCase().includes(search)
+    (category === "all" || item[1] === category) &&
+    item.join(" ").toLowerCase().includes(search)
   );
 
-  $("skillGrid").innerHTML = list.map(item => {
-    const done = data.skills.includes(item.name);
-    return `
-      <article class="content-card">
-        <div class="card-icon feature-icon blue">${item.icon}</div>
-        <h3>${escapeHTML(item.name)}</h3>
-        <div class="card-meta">${escapeHTML(item.category)} · ${escapeHTML(item.level)}</div>
-        <p>${escapeHTML(item.description)}</p>
-        <a class="btn btn-outline" href="${item.url}" target="_blank" rel="noopener">Start learning ↗</a>
-        <button class="btn ${done ? "btn-primary" : "btn-outline"} skill-toggle" data-skill="${escapeHTML(item.name)}">${done ? "✓ Completed" : "Mark completed"}</button>
-      </article>`;
-  }).join("") || '<div class="empty-state">No skills found. Try another search.</div>';
+  $("skillGrid").innerHTML = list.map(item => `
+    <article class="content-card">
+      <div class="card-icon feature-icon blue">${item[2]}</div>
+      <h3>${safe(item[0])}</h3>
+      <div class="card-meta">${safe(item[1])}</div>
+      <p>${safe(item[3])}</p>
+      <a class="btn btn-outline" href="${item[4]}" target="_blank" rel="noopener">Start learning ↗</a>
+      <button class="btn btn-primary skill-toggle" data-skill="${safe(item[0])}">
+        ${completed.includes(item[0]) ? "✓ Completed" : "Mark completed"}
+      </button>
+    </article>
+  `).join("") || '<div class="empty-state">No skills found.</div>';
 }
 
 $("skillGrid").addEventListener("click", event => {
@@ -345,65 +398,69 @@ $("skillGrid").addEventListener("click", event => {
 
   const data = getData();
   const name = button.dataset.skill;
-  const done = data.skills.includes(name);
-  data.skills = done ? data.skills.filter(item => item !== name) : [...data.skills, name];
-  saveUserData(data);
+
+  data.skills = data.skills.includes(name)
+    ? data.skills.filter(item => item !== name)
+    : [...data.skills, name];
+
+  saveData(data);
   renderAll();
-  toast(done ? "Skill marked as ongoing." : "Great work! Skill completed.");
+  notify("Learning progress updated!");
 });
 
 $("skillSearch").addEventListener("input", renderSkills);
 $("skillCategory").addEventListener("change", renderSkills);
 
-/* ---------- CAREERS ---------- */
+/* CAREERS */
 
 function renderCareers() {
   const search = $("careerSearch").value.toLowerCase();
   const category = $("careerCategory").value;
 
   const list = careers.filter(item =>
-    (category === "all" || item.category === category) &&
-    (item.name + item.description + item.skills).toLowerCase().includes(search)
+    (category === "all" || item[1] === category) &&
+    item.join(" ").toLowerCase().includes(search)
   );
 
   $("careerGrid").innerHTML = list.map(item => `
     <article class="content-card">
-      <div class="card-icon feature-icon purple">${item.icon}</div>
-      <div class="card-meta">${escapeHTML(item.category)}</div>
-      <h3>${escapeHTML(item.name)}</h3>
-      <p>${escapeHTML(item.description)}</p>
-      <p><strong>Useful skills:</strong> ${escapeHTML(item.skills)}</p>
-      <button class="btn btn-primary career-select" data-career="${escapeHTML(item.name)}">Choose career →</button>
-      <a class="text-btn" href="${item.url}" target="_blank" rel="noopener">Explore resources ↗</a>
-    </article>`).join("") || '<div class="empty-state">No careers match your search.</div>';
+      <div class="card-icon feature-icon purple">${item[2]}</div>
+      <div class="card-meta">${safe(item[1])}</div>
+      <h3>${safe(item[0])}</h3>
+      <p>${safe(item[3])}</p>
+      <p><strong>Useful skills:</strong> ${safe(item[4])}</p>
+      <button class="btn btn-primary" data-career="${safe(item[0])}">Choose career →</button>
+      <a class="text-btn" href="${item[5]}" target="_blank" rel="noopener">Explore resources ↗</a>
+    </article>
+  `).join("") || '<div class="empty-state">No careers found.</div>';
 }
 
 $("careerGrid").addEventListener("click", event => {
   const button = event.target.closest("[data-career]");
   if (!button) return;
+
   updateData({ career: button.dataset.career });
-  toast("Career path saved!");
-  renderDashboard();
+  notify("Career choice saved!");
 });
 
 $("careerSearch").addEventListener("input", renderCareers);
 $("careerCategory").addEventListener("change", renderCareers);
 
-/* ---------- ROADMAPS ---------- */
+/* ROADMAPS */
 
 function renderRoadmaps() {
   $("roadmapGrid").innerHTML = roadmaps.map(item => `
     <article class="content-card">
-      <div class="card-icon feature-icon blue">${item.icon}</div>
-      <div class="card-meta">${escapeHTML(item.level)} · ${escapeHTML(item.duration)}</div>
-      <h3>${escapeHTML(item.name)}</h3>
-      <p>${escapeHTML(item.description)}</p>
-      <ol>${item.steps.map(step => `<li>${escapeHTML(step)}</li>`).join("")}</ol>
-      <a class="btn btn-primary" href="${item.url}" target="_blank" rel="noopener">Explore full roadmap ↗</a>
-    </article>`).join("");
+      <div class="card-icon feature-icon blue">${item[1]}</div>
+      <div class="card-meta">${safe(item[2])}</div>
+      <h3>${safe(item[0])}</h3>
+      <p>${safe(item[3])}</p>
+      <a class="btn btn-primary" href="${item[4]}" target="_blank" rel="noopener">Explore roadmap ↗</a>
+    </article>
+  `).join("");
 }
 
-/* ---------- PROJECT STUDIO ---------- */
+/* PROJECTS */
 
 $("addProjectBtn").addEventListener("click", () => {
   $("projectForm").classList.remove("hidden");
@@ -423,26 +480,163 @@ $("newProjectForm").addEventListener("submit", event => {
   const link = $("projectLink").value.trim();
 
   if (!title || !description) return;
-  if (link && !validURL(link)) {
-    toast("Please enter a valid HTTP or HTTPS project URL.");
-    return;
+
+  if (link) {
+    try {
+      const url = new URL(link);
+      if (!["http:", "https:"].includes(url.protocol)) throw new Error();
+    } catch {
+      notify("Please enter a valid project URL.");
+      return;
+    }
   }
 
   const data = getData();
   data.projects.push({
     id: Date.now().toString(),
     title,
-    tech: $("projectTech").value.trim(),
     description,
+    tech: $("projectTech").value.trim(),
     link
   });
 
-  saveUserData(data);
+  saveData(data);
   $("newProjectForm").reset();
   $("projectForm").classList.add("hidden");
   renderAll();
-  toast("Project added to your portfolio!");
+  notify("Project added!");
 });
 
 function renderProjects() {
-  const data = 
+  const list = getData().projects;
+
+  $("projectGrid").innerHTML = list.map(item => `
+    <article class="content-card">
+      <div class="card-icon feature-icon orange">▣</div>
+      <h3>${safe(item.title)}</h3>
+      <div class="card-meta">${safe(item.tech || "Personal project")}</div>
+      <p>${safe(item.description)}</p>
+      ${item.link ? `<a class="text-btn" href="${safe(item.link)}" target="_blank" rel="noopener">View project ↗</a>` : ""}
+      <button class="btn btn-outline" data-delete-project="${safe(item.id)}">Delete project</button>
+    </article>
+  `).join("") || '<div class="empty-state">Add your first project to get started!</div>';
+}
+
+$("projectGrid").addEventListener("click", event => {
+  const button = event.target.closest("[data-delete-project]");
+  if (!button || !confirm("Delete this project?")) return;
+
+  const data = getData();
+  data.projects = data.projects.filter(item => item.id !== button.dataset.deleteProject);
+  saveData(data);
+  renderAll();
+  notify("Project deleted.");
+});
+
+/* RESOURCES */
+
+function renderResources() {
+  const search = $("resourceSearch").value.toLowerCase();
+  const category = $("resourceCategory").value;
+  const saved = getData().saved;
+
+  const list = resources.filter(item =>
+    (category === "all" || item[1] === category) &&
+    item.join(" ").toLowerCase().includes(search)
+  );
+
+  $("resourceGrid").innerHTML = list.map(item => `
+    <article class="content-card">
+      <div class="card-icon feature-icon green">${item[2]}</div>
+      <div class="card-meta">${safe(item[1])}</div>
+      <h3>${safe(item[0])}</h3>
+      <p>${safe(item[3])}</p>
+      <a class="btn btn-primary" href="${item[4]}" target="_blank" rel="noopener">Visit resource ↗</a>
+      <button class="btn btn-outline" data-save-resource="${safe(item[0])}">
+        ${saved.includes(item[0]) ? "★ Saved" : "☆ Save resource"}
+      </button>
+    </article>
+  `).join("") || '<div class="empty-state">No resources found.</div>';
+}
+
+$("resourceGrid").addEventListener("click", event => {
+  const button = event.target.closest("[data-save-resource]");
+  if (!button) return;
+
+  const data = getData();
+  const name = button.dataset.saveResource;
+
+  data.saved = data.saved.includes(name)
+    ? data.saved.filter(item => item !== name)
+    : [...data.saved, name];
+
+  saveData(data);
+  renderAll();
+  notify("Saved resources updated!");
+});
+
+$("resourceSearch").addEventListener("input", renderResources);
+$("resourceCategory").addEventListener("change", renderResources);
+
+/* ACHIEVEMENTS */
+
+function renderAchievements() {
+  const data = getData();
+
+  const items = [
+    ["🌱","First steps","Complete one skill.",data.skills.length >= 1],
+    ["⭐","Skill builder","Complete five skills.",data.skills.length >= 5],
+    ["🛠️","Project creator","Add a project.",data.projects.length >= 1],
+    ["📚","Knowledge seeker","Save a resource.",data.saved.length >= 1]
+  ];
+
+  $("achievementGrid").innerHTML = items.map(item => `
+    <article class="content-card">
+      <div class="card-icon feature-icon ${item[3] ? "green" : "blue"}">${item[0]}</div>
+      <h3>${item[1]}</h3>
+      <p>${item[2]}</p>
+      <div class="card-meta">${item[3] ? "✓ Unlocked" : "Not unlocked yet"}</div>
+    </article>
+  `).join("");
+}
+
+/* SETTINGS */
+
+$("weeklyGoal").addEventListener("change", event => {
+  updateData({ goal: Number(event.target.value) });
+  renderDashboard();
+  notify("Weekly goal saved!");
+});
+
+/* RENDER ALL */
+
+function renderAll() {
+  renderUser();
+  renderDashboard();
+  renderSkills();
+  renderCareers();
+  renderRoadmaps();
+  renderProjects();
+  renderResources();
+  renderAchievements();
+}
+
+/* STARTUP */
+
+function startApp() {
+  const theme = localStorage.getItem("nextstep_theme");
+  setTheme(theme === "dark");
+
+  const email = localStorage.getItem(SESSION_KEY);
+  const accounts = getAccounts();
+
+  if (email && accounts[email]) {
+    currentUser = { email, name: accounts[email].name };
+    openApp();
+  } else {
+    localStorage.removeItem(SESSION_KEY);
+    setAuthMode("login");
+  }
+}
+
+startApp();
