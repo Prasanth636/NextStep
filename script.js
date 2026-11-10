@@ -3,7 +3,7 @@
    NEXTSTEP - STUDENT CAREER PLATFORM
    Demo version using browser LocalStorage
 ========================================== */
-
+alert("NextStep JavaScript is running!");
 const $ = (id) => document.getElementById(id);
 const DB_KEY = "nextstep_demo_accounts";
 const SESSION_KEY = "nextstep_demo_session";
