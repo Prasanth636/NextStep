@@ -28,44 +28,52 @@ const careerSkills = {
     ]
 };
 
+let selectedCareer = "";
 let completedSkills = JSON.parse(
-    localStorage.getItem("completedSkills") || "[]"
+    localStorage.getItem("nextStepProgress") || "{}"
 );
 
-let selectedSkills = [];
-
 function showSkills() {
-    const career = document.getElementById("career").value;
+    selectedCareer = document.getElementById("career").value;
+
     const list = document.getElementById("skillsList");
 
-    if (!career) {
-        alert("Please select your career!");
+    if (!selectedCareer) {
+        alert("Please select a career!");
         return;
     }
 
-    selectedSkills = careerSkills[career];
     list.innerHTML = "";
 
-    selectedSkills.forEach(skill => {
+    const skills = careerSkills[selectedCareer];
+
+    if (!completedSkills[selectedCareer]) {
+        completedSkills[selectedCareer] = [];
+    }
+
+    skills.forEach(skill => {
         const label = document.createElement("label");
         const checkbox = document.createElement("input");
 
         checkbox.type = "checkbox";
-        checkbox.checked = completedSkills.includes(skill);
+
+        checkbox.checked =
+            completedSkills[selectedCareer].includes(skill);
 
         checkbox.addEventListener("change", function() {
             if (this.checked) {
-                if (!completedSkills.includes(skill)) {
-                    completedSkills.push(skill);
+                if (!completedSkills[selectedCareer].includes(skill)) {
+                    completedSkills[selectedCareer].push(skill);
                 }
             } else {
-                completedSkills = completedSkills.filter(
-                    item => item !== skill
-                );
+                completedSkills[selectedCareer] =
+                    completedSkills[selectedCareer].filter(
+                        item => item !== skill
+                    );
             }
 
             localStorage.setItem(
-                "completedSkills",
+                "nextStepProgress",
                 JSON.stringify(completedSkills)
             );
 
@@ -73,9 +81,7 @@ function showSkills() {
         });
 
         label.appendChild(checkbox);
-        label.append(" " + skill);
-        label.style.display = "block";
-        label.style.margin = "12px 0";
+        label.appendChild(document.createTextNode(skill));
 
         list.appendChild(label);
     });
@@ -84,18 +90,23 @@ function showSkills() {
 }
 
 function updateProgress() {
-    const total = selectedSkills.length;
+    const skills = careerSkills[selectedCareer] || [];
 
-    const completed = selectedSkills.filter(
-        skill => completedSkills.includes(skill)
-    ).length;
+    const completed = completedSkills[selectedCareer] || [];
+
+    const total = skills.length;
+
+    const count = completed.length;
 
     const percentage = total === 0
         ? 0
-        : Math.round((completed / total) * 100);
+        : Math.round((count / total) * 100);
 
     document.getElementById("progress").textContent =
         percentage + "% Completed";
+
+    document.getElementById("skillCount").textContent =
+        count + " / " + total + " skills";
 
     document.getElementById("progressBar").value =
         percentage;
