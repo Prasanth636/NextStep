@@ -5,14 +5,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NextStep - Career Preparation</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <h1>Welcome to NextStep</h1>
-    <p>Prepare Today. Succeed Tomorrow.</p>
+    <header>
+        <h1>NextStep</h1>
+        <p>Prepare Today. Succeed Tomorrow.</p>
+    </header>
 
-    <h2>Build Your Future Skills</h2>
-    <p>Discover the skills needed for your dream career.</p>
+    <main>
+        <h2>Build Your Future Skills</h2>
+        <p>Discover the skills needed for your dream career.</p>
 
+        <section>
+            <h3>Choose Your Career</h3>
+            <select id="career">
+                <option value="">Select a career</option>
+                <option value="developer">Software Developer</option>
+                <option value="analyst">Data Analyst</option>
+                <option value="designer">Web Designer</option>
+            </select>
+            <button onclick="showSkills()">Explore Skills</button>
+        </section>
+
+        <section>
+            <h3>Recommended Skills</h3>
+            <div id="skillsList"></div>
+        </section>
+
+        <section>
+            <h3>Your Learning Progress</h3>
+            <p id="progress">0% Completed</p>
+            <progress id="progressBar" value="0" max="100"></progress>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
 </body>
 </html>
