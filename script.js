@@ -1,509 +1,448 @@
-alert("NextStep JavaScript is running!");
-"use strict";
 
-/* =====================================
-   NEXTSTEP - MAIN APPLICATION
-===================================== */
+/* ==========================================
+   NEXTSTEP - STUDENT CAREER PLATFORM
+   Demo version using browser LocalStorage
+========================================== */
 
-const $ = id => document.getElementById(id);
-const $$ = selector => [...document.querySelectorAll(selector)];
+const $ = (id) => document.getElementById(id);
+const DB_KEY = "nextstep_demo_accounts";
+const SESSION_KEY = "nextstep_demo_session";
 
-const STORE = {
-  career: "nsCareer",
-  skills: "nsSkills",
-  explored: "nsExplored",
-  projects: "nsCompletedProjects",
-  activity: "nsActivity"
-};
+let currentUser = null;
+let authMode = "login";
+let toastTimer;
 
-function load(key, fallback) {
+/* ---------- DEMO DATA ---------- */
+
+const careers = [
+  {name:"Frontend Developer",category:"Technology",icon:"💻",description:"Build responsive and interactive websites using modern web technologies.",skills:"HTML, CSS, JavaScript, React",url:"https://developer.mozilla.org/en-US/docs/Learn"},
+  {name:"Data Analyst",category:"Technology",icon:"📊",description:"Turn data into useful insights using analysis and visualization.",skills:"Excel, SQL, Python, Statistics",url:"https://www.kaggle.com/learn"},
+  {name:"Cybersecurity Analyst",category:"Technology",icon:"🛡️",description:"Help organizations identify security risks and protect digital systems.",skills:"Networking, Linux, Security",url:"https://owasp.org/"},
+  {name:"Cloud Engineer",category:"Technology",icon:"☁️",description:"Work with cloud infrastructure, deployment and scalable systems.",skills:"Linux, Networking, AWS",url:"https://skillbuilder.aws/"},
+  {name:"UI/UX Designer",category:"Creative",icon:"🎨",description:"Create intuitive digital experiences through research and design.",skills:"Figma, Design, Prototyping",url:"https://help.figma.com/"},
+  {name:"Digital Marketer",category:"Business",icon:"📱",description:"Help businesses reach audiences through digital channels.",skills:"SEO, Content, Analytics",url:"https://skillshop.withgoogle.com/"},
+  {name:"Financial Analyst",category:"Business",icon:"💹",description:"Analyze financial information to support business decisions.",skills:"Excel, Accounting, Analysis",url:"https://www.coursera.org/"},
+  {name:"Research Scientist",category:"Science",icon:"🔬",description:"Investigate questions, conduct experiments and develop knowledge.",skills:"Research, Statistics, Communication",url:"https://www.khanacademy.org/"},
+  {name:"Public Administration",category:"Public Service",icon:"🏛️",description:"Contribute to public services, policy and community development.",skills:"Communication, Governance, Analysis",url:"https://www.india.gov.in/"}
+];
+
+const skills = [
+  {name:"HTML & CSS",category:"Technical",icon:"🌐",description:"Learn the foundations of building and styling websites.",level:"Beginner",url:"https://developer.mozilla.org/en-US/docs/Learn_web_development"},
+  {name:"JavaScript",category:"Technical",icon:"⚡",description:"Understand programming fundamentals and interactive web applications.",level:"Beginner",url:"https://javascript.info/"},
+  {name:"Python Programming",category:"Technical",icon:"🐍",description:"Build programming fundamentals with a versatile language.",level:"Beginner",url:"https://docs.python.org/3/tutorial/"},
+  {name:"SQL & Databases",category:"Technical",icon:"🗄️",description:"Learn how to organize, query and manage data.",level:"Beginner",url:"https://sqlbolt.com/"},
+  {name:"Communication",category:"Professional",icon:"🗣️",description:"Improve speaking, listening and professional communication.",level:"Essential",url:"https://www.toastmasters.org/"},
+  {name:"Problem Solving",category:"Analytical",icon:"🧩",description:"Practice breaking down problems and developing logical solutions.",level:"Essential",url:"https://www.hackerrank.com/domains/algorithms"},
+  {name:"Data Analysis",category:"Analytical",icon:"📈",description:"Explore data analysis concepts and practical exercises.",level:"Intermediate",url:"https://www.kaggle.com/learn"},
+  {name:"UI/UX Design",category:"Creative",icon:"🎨",description:"Learn visual design, user research and prototyping.",level:"Beginner",url:"https://help.figma.com/"},
+  {name:"Git & GitHub",category:"Technical",icon:"🔧",description:"Understand version control and collaborative development.",level:"Beginner",url:"https://docs.github.com/en/get-started"},
+  {name:"Critical Thinking",category:"Analytical",icon:"💡",description:"Develop evidence-based thinking and decision-making.",level:"Essential",url:"https://www.coursera.org/"},
+  {name:"Teamwork",category:"Professional",icon:"🤝",description:"Learn collaboration, accountability and team communication.",level:"Essential",url:"https://www.atlassian.com/team-playbook"},
+  {name:"Presentation Skills",category:"Professional",icon:"🎤",description:"Present ideas clearly and confidently.",level:"Essential",url:"https://www.toastmasters.org/"}
+];
+
+const roadmaps = [
+  {name:"Web Development",icon:"🌐",level:"Beginner to Advanced",duration:"12 weeks",description:"Learn to build websites from HTML and CSS to JavaScript and modern frameworks.",steps:["HTML fundamentals","CSS and responsive layouts","JavaScript basics","DOM and browser APIs","Git and GitHub","Build and publish a project"],url:"https://roadmap.sh/frontend"},
+  {name:"Python Developer",icon:"🐍",level:"Beginner to Intermediate",duration:"10 weeks",description:"Build programming knowledge and practical Python applications.",steps:["Python basics","Data structures","Functions and modules","Files and exceptions","Libraries and APIs","Build a Python project"],url:"https://roadmap.sh/python"},
+  {name:"Data Analytics",icon:"📊",level:"Beginner to Intermediate",duration:"10 weeks",description:"Develop skills in data preparation, analysis and visualization.",steps:["Spreadsheet fundamentals","Statistics basics","SQL queries","Python for data","Data visualization","Create a data project"],url:"https://roadmap.sh/ai-data-scientist"},
+  {name:"Cybersecurity",icon:"🛡️",level:"Beginner",duration:"12 weeks",description:"Explore computer networks, operating systems and security concepts.",steps:["Computer fundamentals","Networking basics","Linux fundamentals","Security principles","Web security basics","Practice in safe labs"],url:"https://roadmap.sh/cyber-security"},
+  {name:"UI/UX Design",icon:"🎨",level:"Beginner",duration:"8 weeks",description:"Learn design principles and create user-friendly experiences.",steps:["Design fundamentals","Color and typography","User research","Wireframing","Prototyping","Build a portfolio case study"],url:"https://www.figma.com/resource-library/"}
+];
+
+const resources = [
+  {name:"MDN Web Docs",category:"Programming",icon:"🌐",description:"Reliable documentation and tutorials for web development.",url:"https://developer.mozilla.org/"},
+  {name:"freeCodeCamp",category:"Programming",icon:"💻",description:"Free interactive coding lessons and certifications.",url:"https://www.freecodecamp.org/learn/"},
+  {name:"Python Documentation",category:"Programming",icon:"🐍",description:"Official Python tutorials and language documentation.",url:"https://docs.python.org/3/tutorial/"},
+  {name:"Kaggle Learn",category:"Data",icon:"📊",description:"Short practical courses in data science and machine learning.",url:"https://www.kaggle.com/learn"},
+  {name:"AWS Skill Builder",category:"Cloud",icon:"☁️",description:"Explore cloud computing training from AWS.",url:"https://skillbuilder.aws/"},
+  {name:"Figma Learn",category:"Design",icon:"🎨",description:"Guides for interface design and prototyping.",url:"https://help.figma.com/"},
+  {name:"OWASP",category:"Security",icon:"🛡️",description:"Open resources for web application security.",url:"https://owasp.org/"},
+  {name:"GitHub Docs",category:"Programming",icon:"🐙",description:"Learn GitHub workflows and collaborative development.",url:"https://docs.github.com/"},
+  {name:"Khan Academy",category:"General",icon:"📚",description:"Free lessons across mathematics, science and other subjects.",url:"https://www.khanacademy.org/"},
+  {name:"NPTEL",category:"General",icon:"🎓",description:"Online courses from Indian institutes and educators.",url:"https://nptel.ac.in/"},
+  {name:"Google Skillshop",category:"General",icon:"🔎",description:"Training resources for Google's professional tools.",url:"https://skillshop.withgoogle.com/"},
+  {name:"roadmap.sh",category:"Programming",icon:"🗺️",description:"Community-maintained visual learning roadmaps.",url:"https://roadmap.sh/"}
+];
+
+/* ---------- STORAGE ---------- */
+
+function readAccounts() {
   try {
-    return JSON.parse(localStorage.getItem(key)) ?? fallback;
+    const data = JSON.parse(localStorage.getItem(DB_KEY) || "{}");
+    return data && typeof data === "object" && !Array.isArray(data) ? data : {};
   } catch {
-    return fallback;
+    return {};
   }
 }
 
-let selectedCareer = load(STORE.career, "developer");
-let completedSkills = load(STORE.skills, []);
-let exploredCareers = load(STORE.explored, []);
-let completedProjects = load(STORE.projects, []);
-let activities = load(STORE.activity, []);
-
-function save() {
-  localStorage.setItem(STORE.career, JSON.stringify(selectedCareer));
-  localStorage.setItem(STORE.skills, JSON.stringify(completedSkills));
-  localStorage.setItem(STORE.explored, JSON.stringify(exploredCareers));
-  localStorage.setItem(STORE.projects, JSON.stringify(completedProjects));
-  localStorage.setItem(STORE.activity, JSON.stringify(activities));
+function saveAccounts(accounts) {
+  localStorage.setItem(DB_KEY, JSON.stringify(accounts));
 }
 
+function userKey() {
+  return "nextstep_user_" + currentUser.email.toLowerCase();
+}
+
+function readUserData() {
+  try {
+    return JSON.parse(localStorage.getItem(userKey())) || {};
+  } catch {
+    return {};
+  }
+}
+
+function saveUserData(data) {
+  localStorage.setItem(userKey(), JSON.stringify(data));
+}
+
+function getData() {
+  return {
+    name: currentUser.name || "Student",
+    college: "",
+    branch: "",
+    year: "",
+    skills: [],
+    projects: [],
+    saved: [],
+    career: "",
+    goal: 5,
+    ...(readUserData())
+  };
+}
+
+function updateData(changes) {
+  const data = getData();
+  Object.assign(data, changes);
+  saveUserData(data);
+  return data;
+}
+
+/* ---------- UTILITIES ---------- */
+
 function escapeHTML(value) {
-  return String(value).replace(/[&<>"']/g, char => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;",
-    '"': "&quot;", "'": "&#039;"
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;",
+    '"':"&quot;", "'":"&#039;"
   })[char]);
 }
 
-function activity(message) {
-  activities.unshift({
-    message,
-    date: new Date().toLocaleDateString()
-  });
-  activities = activities.slice(0, 8);
-  save();
-  renderActivity();
-}
-
-/* CAREER INFORMATION */
-
-const careers = {
-  developer: {
-    title: "Full Stack Developer",
-    icon: "💻",
-    category: "development",
-    description: "Create websites and applications using frontend and backend technologies.",
-    skills: ["HTML", "CSS", "JavaScript", "Git and GitHub", "React", "Node.js", "Express.js", "Databases", "REST APIs"],
-    projects: ["Personal Portfolio Website", "Student Management System", "E-commerce Website"]
-  },
-  analyst: {
-    title: "Data Analyst",
-    icon: "📊",
-    category: "data",
-    description: "Analyze information and discover insights that help businesses make decisions.",
-    skills: ["Excel", "SQL", "Python", "Statistics", "Data Cleaning", "Power BI", "Data Visualization", "Pandas", "Data Analysis"],
-    projects: ["Sales Data Analysis", "Student Performance Dashboard", "Customer Data Analysis"]
-  },
-  designer: {
-    title: "UI/UX Designer",
-    icon: "🎨",
-    category: "design",
-    description: "Design attractive, accessible and user-friendly digital experiences.",
-    skills: ["Design Principles", "Color Theory", "Typography", "Wireframing", "Figma", "Prototyping", "User Research", "Responsive Design", "Usability Testing"],
-    projects: ["Mobile App Design", "E-commerce UI Design", "Student Dashboard Design"]
-  },
-  ai: {
-    title: "AI / Machine Learning Engineer",
-    icon: "🤖",
-    category: "data",
-    description: "Develop intelligent applications using data and machine learning algorithms.",
-    skills: ["Python", "Mathematics", "Statistics", "NumPy", "Pandas", "Machine Learning", "Scikit-learn", "Deep Learning", "Model Evaluation"],
-    projects: ["House Price Prediction", "Movie Recommendation System", "Image Classification"]
-  },
-  cyber: {
-    title: "Cybersecurity Analyst",
-    icon: "🔐",
-    category: "security",
-    description: "Protect digital systems and networks from security threats.",
-    skills: ["Networking", "Linux", "Python", "Cybersecurity Basics", "Web Security", "OWASP", "Security Monitoring", "Risk Assessment", "Incident Response"],
-    projects: ["Password Strength Checker", "Network Security Analysis", "Security Awareness Website"]
-  },
-  cloud: {
-    title: "Cloud Engineer",
-    icon: "☁️",
-    category: "cloud",
-    description: "Deploy and maintain applications and infrastructure using cloud technologies.",
-    skills: ["Linux", "Networking", "Python", "Cloud Basics", "AWS", "Azure", "Docker", "Git", "Deployment"],
-    projects: ["Cloud Hosted Portfolio", "Dockerized Web Application", "Cloud Storage Application"]
+function validURL(value) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:";
+  } catch {
+    return false;
   }
-};
-
-/* NAVIGATION */
-
-const pageTitles = {
-  dashboard: "Dashboard",
-  careers: "Explore Careers",
-  roadmap: "Learning Roadmap",
-  projects: "Project Studio",
-  placement: "Placement Center",
-  resources: "Resource Library"
-};
-
-function showPage(name) {
-  if (!pageTitles[name]) return;
-
-  $$(".page").forEach(page => {
-    page.classList.toggle("active", page.id === name);
-  });
-
-  $$(".nav-link").forEach(button => {
-    button.classList.toggle("active", button.dataset.page === name);
-  });
-
-  $("pageTitle").textContent = pageTitles[name];
-  $("sidebar").classList.remove("open");
-
-  if (name === "dashboard") renderDashboard();
-  if (name === "careers") renderCareers();
-  if (name === "roadmap") renderRoadmap();
-  if (name === "projects") renderProjects();
-  if (name === "placement") {
-    renderInterview();
-    renderQuiz();
-  }
-  if (name === "resources") renderResources();
-
-  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-function setupNavigation() {
-  $$(".nav-link").forEach(button => {
-    button.addEventListener("click", () => showPage(button.dataset.page));
-  });
-
-  $$("[data-go]").forEach(button => {
-    button.addEventListener("click", () => showPage(button.dataset.go));
-  });
-
-  document.querySelector(".brand")?.addEventListener("click", event => {
-    event.preventDefault();
-    showPage("dashboard");
-  });
-
-  $("menuToggle").addEventListener("click", () => {
-    $("sidebar").classList.toggle("open");
-  });
+function toast(message) {
+  const box = $("toast");
+  if (!box) return;
+  box.textContent = message;
+  box.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => box.classList.remove("show"), 2600);
 }
 
-/* CAREER EXPLORER */
+/* ---------- AUTHENTICATION DEMO ---------- */
 
-function renderCareers() {
-  const container = $("careerContainer");
-  const search = $("careerSearch").value.toLowerCase();
-  const category = $("careerFilter").value;
-
-  const results = Object.entries(careers).filter(([id, career]) => {
-    const matchesText =
-      career.title.toLowerCase().includes(search) ||
-      career.description.toLowerCase().includes(search);
-
-    return matchesText &&
-      (category === "all" || career.category === category);
-  });
-
-  container.innerHTML = results.length
-    ? results.map(([id, career]) => `
-      <article class="career-card">
-        <div class="career-icon">${career.icon}</div>
-        <h3>${escapeHTML(career.title)}</h3>
-        <p>${escapeHTML(career.description)}</p>
-        <p><strong>${career.skills.length} key skills</strong></p>
-        <button class="btn btn-primary" data-career="${id}">
-          Explore Career →
-        </button>
-      </article>
-    `).join("")
-    : "<p>No careers found. Try another search.</p>";
-
-  container.querySelectorAll("[data-career]").forEach(button => {
-    button.addEventListener("click", () => selectCareer(button.dataset.career));
-  });
+function setAuthMode(mode) {
+  authMode = mode;
+  $("authTitle").innerHTML = mode === "login" ? 'Welcome back<span>.</span>' : 'Create your account<span>.</span>';
+  $("authSubtitle").textContent = mode === "login"
+    ? "Sign in to continue your journey."
+    : "Start building your future with NextStep.";
+  $("nameField").classList.toggle("hidden", mode === "login");
+  $("authName").required = mode === "register";
+  $("authSubmit").innerHTML = mode === "login" ? 'Sign In <span>→</span>' : 'Create Account <span>→</span>';
+  $("switchText").textContent = mode === "login" ? "New to NextStep?" : "Already have an account?";
+  $("switchAuth").textContent = mode === "login" ? "Create account" : "Sign in";
+  $("authMessage").textContent = "";
 }
 
-function selectCareer(id) {
-  const career = careers[id];
-  if (!career) return;
+$("switchAuth").addEventListener("click", () => {
+  setAuthMode(authMode === "login" ? "register" : "login");
+});
 
-  selectedCareer = id;
-  if (!exploredCareers.includes(id)) exploredCareers.push(id);
-  save();
+$("authForm").addEventListener("submit", event => {
+  event.preventDefault();
 
-  $("careerDetail").innerHTML = `
-    <p class="eyebrow">CAREER PROFILE</p>
-    <h2>${career.icon} ${escapeHTML(career.title)}</h2>
-    <p>${escapeHTML(career.description)}</p>
-    <h3>Skills to develop</h3>
-    <ul>${career.skills.map(skill => `<li>${escapeHTML(skill)}</li>`).join("")}</ul>
-    <h3>Suggested projects</h3>
-    <ul>${career.projects.map(project => `<li>${escapeHTML(project)}</li>`).join("")}</ul>
-    <button class="btn btn-primary" id="careerStart">Start this roadmap →</button>
-  `;
+  const email = $("authEmail").value.trim().toLowerCase();
+  const password = $("authPassword").value;
+  const name = $("authName").value.trim();
 
-  $("careerStart").addEventListener("click", () => showPage("roadmap"));
+  if (!email || !password) return;
 
-  activity("Explored " + career.title);
-  renderDashboard();
-}
+  const accounts = readAccounts();
 
-/* LEARNING ROADMAP */
+  if (authMode === "register") {
+    if (!name) {
+      $("authMessage").textContent = "Please enter your full name.";
+      return;
+    }
+    if (password.length < 6) {
+      $("authMessage").textContent = "Password must contain at least 6 characters.";
+      return;
+    }
+    if (accounts[email]) {
+      $("authMessage").textContent = "An account with this email already exists.";
+      return;
+    }
 
-function renderRoadmap() {
-  const select = $("roadmapCareer");
+    // Demo only: never use real or reused passwords here.
+    accounts[email] = { name, password };
+    saveAccounts(accounts);
 
-  if (!select.options.length) {
-    select.innerHTML = Object.entries(careers).map(([id, career]) =>
-      `<option value="${id}">${escapeHTML(career.title)}</option>`
-    ).join("");
-  }
-
-  select.value = selectedCareer;
-
-  const career = careers[select.value];
-  const container = $("roadmapContainer");
-
-  const completed = career.skills.filter(skill =>
-    completedSkills.includes(select.value + ":" + skill)
-  ).length;
-
-  $("roadmapSummary").textContent =
-    `${completed} of ${career.skills.length} skills completed · ${Math.round(completed / career.skills.length * 100)}% progress`;
-
-  container.innerHTML = career.skills.map((skill, index) => {
-    const key = select.value + ":" + skill;
-    const checked = completedSkills.includes(key);
-
-    return `
-      <div class="roadmap-item">
-        <label>
-          <input type="checkbox" data-skill="${escapeHTML(skill)}" ${checked ? "checked" : ""}>
-          <span>${index + 1}. ${escapeHTML(skill)}</span>
-        </label>
-        <span>${checked ? "Completed ✓" : "In progress"}</span>
-      </div>
-    `;
-  }).join("");
-
-  container.querySelectorAll("[data-skill]").forEach(input => {
-    input.addEventListener("change", () => {
-      const key = select.value + ":" + input.dataset.skill;
-
-      if (input.checked) {
-        if (!completedSkills.includes(key)) completedSkills.push(key);
-        activity("Completed skill: " + input.dataset.skill);
-      } else {
-        completedSkills = completedSkills.filter(item => item !== key);
-        save();
-      }
-
-      renderRoadmap();
-      renderDashboard();
-    });
-  });
-}
-
-/* PROJECT STUDIO */
-
-const projects = [
-  { id: "portfolio", title: "Personal Portfolio Website", career: "developer", level: "Beginner", tools: "HTML, CSS, JavaScript", description: "Create a responsive personal website to showcase your skills." },
-  { id: "student", title: "Student Management System", career: "developer", level: "Intermediate", tools: "JavaScript, React, Database", description: "Build a system to manage student details and academic records." },
-  { id: "ecommerce", title: "E-commerce Website", career: "developer", level: "Advanced", tools: "React, Node.js, Database", description: "Create an online shopping application." },
-  { id: "sales", title: "Sales Data Analysis", career: "analyst", level: "Beginner", tools: "Excel, SQL, Python", description: "Analyze sales data and identify business trends." },
-  { id: "performance", title: "Student Performance Dashboard", career: "analyst", level: "Intermediate", tools: "Python, Power BI", description: "Visualize academic results using charts." },
-  { id: "mobile", title: "Mobile App UI Design", career: "designer", level: "Beginner", tools: "Figma, Design Principles", description: "Design an attractive mobile application." },
-  { id: "shopdesign", title: "E-commerce UI Design", career: "designer", level: "Intermediate", tools: "Figma, Prototyping", description: "Create a complete online shopping interface." },
-  { id: "house", title: "House Price Prediction", career: "ai", level: "Intermediate", tools: "Python, Pandas, Scikit-learn", description: "Predict house prices using machine learning." },
-  { id: "movie", title: "Movie Recommendation System", career: "ai", level: "Advanced", tools: "Python, Machine Learning", description: "Recommend movies based on user preferences." },
-  { id: "password", title: "Password Strength Checker", career: "cyber", level: "Beginner", tools: "HTML, CSS, JavaScript", description: "Build a tool to evaluate password strength." },
-  { id: "awareness", title: "Security Awareness Website", career: "cyber", level: "Intermediate", tools: "HTML, CSS, JavaScript", description: "Educate users about common online threats." },
-  { id: "cloudsite", title: "Cloud Hosted Portfolio", career: "cloud", level: "Beginner", tools: "HTML, Git, Cloud Hosting", description: "Deploy a portfolio website to a cloud host." },
-  { id: "dockerapp", title: "Dockerized Web Application", career: "cloud", level: "Advanced", tools: "Docker, Linux", description: "Package a web application using Docker." }
-];
-
-function renderProjects() {
-  const career = $("projectCareer").value;
-  const level = $("projectLevel").value;
-
-  const filtered = projects.filter(project =>
-    (career === "all" || project.career === career) &&
-    (level === "all" || project.level === level)
-  );
-
-  $("projectContainer").innerHTML = filtered.length
-    ? filtered.map(project => `
-      <article class="project-card">
-        <h3>${escapeHTML(project.title)}</h3>
-        <span class="level">${project.level}</span>
-        <p>${escapeHTML(project.description)}</p>
-        <p><strong>Tools:</strong> ${escapeHTML(project.tools)}</p>
-        <button class="btn btn-primary" data-project="${project.id}">
-          ${completedProjects.includes(project.id) ? "Completed ✓" : "Mark as completed"}
-        </button>
-      </article>
-    `).join("")
-    : "<p>No projects found for these filters.</p>";
-
-  $("projectContainer").querySelectorAll("[data-project]").forEach(button => {
-    button.addEventListener("click", () => {
-      const id = button.dataset.project;
-      const project = projects.find(item => item.id === id);
-
-      if (completedProjects.includes(id)) {
-        completedProjects = completedProjects.filter(item => item !== id);
-        save();
-      } else {
-        completedProjects.push(id);
-        activity("Completed project: " + project.title);
-      }
-
-      renderProjects();
-      renderDashboard();
-    });
-  });
-}
-
-/* PLACEMENT CENTER - INTERVIEW QUESTIONS */
-
-const interviewQuestions = {
-  technical: [
-    ["What is HTML?", "HTML is the markup language used to structure web pages."],
-    ["What is CSS?", "CSS styles and controls the appearance of web pages."],
-    ["What is JavaScript?", "JavaScript adds logic and interactive behaviour to websites."],
-    ["What is a database?", "A database is an organized collection of information."],
-    ["What is Git?", "Git is a version control system used to track code changes."]
-  ],
-  hr: [
-    ["Tell me about yourself.", "Introduce your education, skills, projects and career interests."],
-    ["What are your strengths?", "Describe your strengths and support them with a real example."],
-    ["Why should we hire you?", "Explain how your skills, attitude and project experience can help the team."],
-    ["Where do you see yourself in five years?", "Describe realistic professional growth and learning goals."],
-    ["How do you handle challenges?", "Explain how you understand a problem, plan a solution and learn from it."]
-  ],
-  aptitude: [
-    ["What is 20% of 250?", "50"],
-    ["What is the average of 10, 20 and 30?", "20"],
-    ["A product costs ₹500 with a 10% discount. What is the price?", "₹450"],
-    ["Find the next number: 2, 4, 8, 16, ...", "32"],
-    ["A person travels 60 km in 2 hours. Find the speed.", "30 km/h"]
-  ]
-};
-
-function renderInterview() {
-  const category = $("interviewCategory").value;
-  const questions = interviewQuestions[category];
-
-  $("interviewContainer").innerHTML = questions.map((item, index) => `
-    <div class="interview-card">
-      <h3>${index + 1}. ${escapeHTML(item[0])}</h3>
-      <button class="btn btn-secondary" data-answer="${index}">Show answer</button>
-      <p id="answer${index}" hidden>${escapeHTML(item[1])}</p>
-    </div>
-  `).join("");
-
-  $("interviewContainer").querySelectorAll("[data-answer]").forEach(button => {
-    button.addEventListener("click", () => {
-      const answer = $("answer" + button.dataset.answer);
-      answer.hidden = !answer.hidden;
-      button.textContent = answer.hidden ? "Show answer" : "Hide answer";
-    });
-  });
-}
-
-/* APTITUDE QUIZ */
-
-const questions = [
-  { q: "What is 25% of 200?", options: ["25", "40", "50", "75"], answer: 2, explanation: "25% of 200 is 50." },
-  { q: "Find the next number: 3, 6, 12, 24, ...", options: ["30", "36", "48", "60"], answer: 2, explanation: "Each number is multiplied by 2. The next number is 48." },
-  { q: "What is the average of 5, 10 and 15?", options: ["5", "10", "15", "20"], answer: 1, explanation: "(5 + 10 + 15) / 3 = 10." },
-  { q: "A car travels 120 km in 2 hours. What is its speed?", options: ["40 km/h", "50 km/h", "60 km/h", "80 km/h"], answer: 2, explanation: "Speed = distance / time = 60 km/h." },
-  { q: "Which number is prime?", options: ["9", "15", "17", "21"], answer: 2, explanation: "17 is divisible only by 1 and itself." }
-];
-
-let answers = {};
-let quizFinished = false;
-
-function renderQuiz() {
-  answers = {};
-  quizFinished = false;
-
-  $("aptitudeContainer").innerHTML = `
-    ${questions.map((question, index) => `
-      <div class="quiz-question">
-        <h4>${index + 1}. ${escapeHTML(question.q)}</h4>
-        <div class="quiz-options">
-          ${question.options.map((option, optionIndex) => `
-            <button type="button" class="quiz-option"
-              data-question="${index}" data-option="${optionIndex}">
-              ${escapeHTML(option)}
-            </button>
-          `).join("")}
-        </div>
-        <p id="explanation${index}" hidden></p>
-      </div>
-    `).join("")}
-    <button type="button" class="btn btn-primary" id="submitQuiz">Submit quiz</button>
-    <div id="quizResult"></div>
-  `;
-
-  $("aptitudeContainer").querySelectorAll("[data-question]").forEach(button => {
-    button.addEventListener("click", () => {
-      if (quizFinished) return;
-
-      const questionIndex = Number(button.dataset.question);
-      answers[questionIndex] = Number(button.dataset.option);
-
-      $$(`[data-question="${questionIndex}"]`).forEach(option =>
-        option.classList.remove("selected")
-      );
-
-      button.classList.add("selected");
-    });
-  });
-
-  $("submitQuiz").addEventListener("click", submitQuiz);
-}
-
-function submitQuiz() {
-  if (quizFinished) return;
-
-  if (Object.keys(answers).length !== questions.length) {
-    alert("Please answer all five questions first.");
+    currentUser = { email, name };
+    localStorage.setItem(SESSION_KEY, email);
+    openApp();
+    toast("Welcome to NextStep, " + name + "!");
     return;
   }
 
-  quizFinished = true;
-  let score = 0;
+  const account = accounts[email];
+  if (!account || account.password !== password) {
+    $("authMessage").textContent = "Incorrect email or password.";
+    return;
+  }
 
-  questions.forEach((question, index) => {
-    const correct = answers[index] === question.answer;
-    if (correct) score++;
+  currentUser = { email, name: account.name };
+  localStorage.setItem(SESSION_KEY, email);
+  openApp();
+  toast("Welcome back!");
+});
 
-    const explanation = $("explanation" + index);
-    explanation.hidden = false;
-    explanation.textContent =
-      (correct ? "Correct! " : "Incorrect. ") + question.explanation;
-  });
-
-  $("quizResult").innerHTML = `
-    <h3>Your score: ${score}/${questions.length}</h3>
-    <p>${Math.round(score / questions.length * 100)}% accuracy</p>
-    <p>${score >= 4 ? "Excellent work! Keep practising." : score >= 3 ? "Good effort. Keep improving!" : "Keep learning and try again!"}</p>
-    <button class="btn btn-primary" id="retakeQuiz">Try again</button>
-  `;
-
-  $("retakeQuiz").addEventListener("click", renderQuiz);
-  activity("Completed aptitude quiz: " + score + "/5");
+function logout() {
+  localStorage.removeItem(SESSION_KEY);
+  currentUser = null;
+  $("appScreen").classList.add("hidden");
+  $("authScreen").classList.remove("hidden");
+  $("authForm").reset();
+  setAuthMode("login");
+  $("sidebar").classList.remove("open");
 }
 
-/* RESOURCE LIBRARY */
+/* ---------- APPLICATION ---------- */
 
-const resources = [
-  ["MDN Web Docs", "Web Development", "https://developer.mozilla.org/"],
-  ["freeCodeCamp", "Web Development", "https://www.freecodecamp.org/"],
-  ["JavaScript.info", "Web Development", "https://javascript.info/"],
-  ["React Documentation", "Web Development", "https://react.dev/learn"],
-  ["Node.js Learning", "Web Development", "https://nodejs.org/en/learn"],
-  ["GitHub Skills", "Tools", "https://skills.github.com/"],
-  ["Python Documentation", "Programming", "https://docs.python.org/3/"],
-  ["Kaggle Learn", "Data Science", "https://www.kaggle.com/learn"],
-  ["Google ML Crash Course", "AI and ML", "https://developers.google.com/machine-learning/crash-course"],
-  ["Microsoft Learn", "Cloud", "https://learn.microsoft.com/training/"],
-  ["AWS Skill Builder", "Cloud", "https://skillbuilder.aws/"],
-  ["Docker Documentation", "Cloud", "https://docs.docker.com/"],
-  ["Figma Learn", "Design", "https://help.figma.com/"],
-  ["Nielsen Norman Group", "Design", "https://www.nngroup.com/articles/"],
-  ["OWASP", "Cybersecurity", "https://owasp.org/"],
-  ["TryHackMe", "Cybersecurity", "https://tryhackme.com/"],
-  ["LeetCode", "Interview Preparation", "https://leetcode.com/"],
-  ["HackerRank", "Interview Preparation", "https://www.hackerrank.com/"]
-];
+function openApp() {
+  if (!currentUser) return;
+  $("authScreen").classList.add("hidden");
+  $("appScreen").classList.remove("hidden");
+  renderUser();
+  renderAll();
+  navigate("dashboard");
+}
 
-function renderResources() {
-  const search = $("resourceSearch").value.toLowerCase();
-  const category = $("resourceCategory").value;
+function renderUser() {
+  const data = getData();
+  const name = data.name || "Student";
+  const initial = name.charAt(0).toUpperCase();
 
-  const filtered = resources.filter(resource =>
-    resource[0].toLowerCase().includes(search) &&
-    (category === "all" || resource[1] === category)
+  $("welcomeName").textContent = name.split(" ")[0];
+  $("sidebarName").textContent = name;
+  $("topName").textContent = name.split(" ")[0];
+  $("sidebarAvatar").textContent = initial;
+  $("topAvatar").textContent = initial;
+  $("profileAvatar").textContent = initial;
+  $("profileDisplayName").textContent = name;
+  $("profileDisplayEmail").textContent = currentUser.email;
+  $("profileName").value = name;
+  $("profileCollege").value = data.college;
+  $("profileBranch").value = data.branch;
+  $("profileYear").value = data.year;
+  $("weeklyGoal").value = String(data.goal);
+}
+
+/* ---------- NAVIGATION ---------- */
+
+function navigate(page) {
+  const target = $(page);
+  if (!target || !target.classList.contains("page")) return;
+
+  document.querySelectorAll(".page").forEach(item => item.classList.remove("active"));
+  target.classList.add("active");
+
+  document.querySelectorAll(".nav-link").forEach(item => {
+    item.classList.toggle("active", item.dataset.page === page);
+  });
+
+  $("pageName").textContent = target.querySelector("h1")?.textContent || "Dashboard";
+  $("sidebar").classList.remove("open");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+document.addEventListener("click", event => {
+  const nav = event.target.closest("[data-page]");
+  if (nav) {
+    event.preventDefault();
+    navigate(nav.dataset.page);
+  }
+
+  const go = event.target.closest("[data-go]");
+  if (go) navigate(go.dataset.go);
+});
+
+$("menuToggle").addEventListener("click", () => {
+  $("sidebar").classList.toggle("open");
+});
+
+document.addEventListener("click", event => {
+  if (window.innerWidth > 800) return;
+  if (!event.target.closest("#sidebar") && !event.target.closest("#menuToggle")) {
+    $("sidebar").classList.remove("open");
+  }
+});
+
+$("topProfile").addEventListener("click", () => navigate("profile"));
+$("sidebarProfile").addEventListener("click", () => navigate("profile"));
+$("logoutBtn").addEventListener("click", logout);
+
+/* ---------- THEME ---------- */
+
+function setTheme(dark) {
+  document.body.classList.toggle("dark", dark);
+  localStorage.setItem("nextstep_theme", dark ? "dark" : "light");
+  $("themeToggle").textContent = dark ? "☀" : "☾";
+  $("settingsTheme").textContent = dark ? "Switch to light ☀" : "Switch to dark ☾";
+}
+
+function toggleTheme() {
+  setTheme(!document.body.classList.contains("dark"));
+}
+
+$("themeToggle").addEventListener("click", toggleTheme);
+$("settingsTheme").addEventListener("click", toggleTheme);
+
+/* ---------- SKILL DEVELOPMENT ---------- */
+
+function renderSkills() {
+  const data = getData();
+  const search = ($("skillSearch")?.value || "").toLowerCase();
+  const category = $("skillCategory")?.value || "all";
+
+  const list = skills.filter(item =>
+    (category === "all" || item.category === category) &&
+    (item.name + item.description + item.category).toLowerCase().includes(search)
   );
 
-  $("resourceContainer").
+  $("skillGrid").innerHTML = list.map(item => {
+    const done = data.skills.includes(item.name);
+    return `
+      <article class="content-card">
+        <div class="card-icon feature-icon blue">${item.icon}</div>
+        <h3>${escapeHTML(item.name)}</h3>
+        <div class="card-meta">${escapeHTML(item.category)} · ${escapeHTML(item.level)}</div>
+        <p>${escapeHTML(item.description)}</p>
+        <a class="btn btn-outline" href="${item.url}" target="_blank" rel="noopener">Start learning ↗</a>
+        <button class="btn ${done ? "btn-primary" : "btn-outline"} skill-toggle" data-skill="${escapeHTML(item.name)}">${done ? "✓ Completed" : "Mark completed"}</button>
+      </article>`;
+  }).join("") || '<div class="empty-state">No skills found. Try another search.</div>';
+}
+
+$("skillGrid").addEventListener("click", event => {
+  const button = event.target.closest("[data-skill]");
+  if (!button) return;
+
+  const data = getData();
+  const name = button.dataset.skill;
+  const done = data.skills.includes(name);
+  data.skills = done ? data.skills.filter(item => item !== name) : [...data.skills, name];
+  saveUserData(data);
+  renderAll();
+  toast(done ? "Skill marked as ongoing." : "Great work! Skill completed.");
+});
+
+$("skillSearch").addEventListener("input", renderSkills);
+$("skillCategory").addEventListener("change", renderSkills);
+
+/* ---------- CAREERS ---------- */
+
+function renderCareers() {
+  const search = $("careerSearch").value.toLowerCase();
+  const category = $("careerCategory").value;
+
+  const list = careers.filter(item =>
+    (category === "all" || item.category === category) &&
+    (item.name + item.description + item.skills).toLowerCase().includes(search)
+  );
+
+  $("careerGrid").innerHTML = list.map(item => `
+    <article class="content-card">
+      <div class="card-icon feature-icon purple">${item.icon}</div>
+      <div class="card-meta">${escapeHTML(item.category)}</div>
+      <h3>${escapeHTML(item.name)}</h3>
+      <p>${escapeHTML(item.description)}</p>
+      <p><strong>Useful skills:</strong> ${escapeHTML(item.skills)}</p>
+      <button class="btn btn-primary career-select" data-career="${escapeHTML(item.name)}">Choose career →</button>
+      <a class="text-btn" href="${item.url}" target="_blank" rel="noopener">Explore resources ↗</a>
+    </article>`).join("") || '<div class="empty-state">No careers match your search.</div>';
+}
+
+$("careerGrid").addEventListener("click", event => {
+  const button = event.target.closest("[data-career]");
+  if (!button) return;
+  updateData({ career: button.dataset.career });
+  toast("Career path saved!");
+  renderDashboard();
+});
+
+$("careerSearch").addEventListener("input", renderCareers);
+$("careerCategory").addEventListener("change", renderCareers);
+
+/* ---------- ROADMAPS ---------- */
+
+function renderRoadmaps() {
+  $("roadmapGrid").innerHTML = roadmaps.map(item => `
+    <article class="content-card">
+      <div class="card-icon feature-icon blue">${item.icon}</div>
+      <div class="card-meta">${escapeHTML(item.level)} · ${escapeHTML(item.duration)}</div>
+      <h3>${escapeHTML(item.name)}</h3>
+      <p>${escapeHTML(item.description)}</p>
+      <ol>${item.steps.map(step => `<li>${escapeHTML(step)}</li>`).join("")}</ol>
+      <a class="btn btn-primary" href="${item.url}" target="_blank" rel="noopener">Explore full roadmap ↗</a>
+    </article>`).join("");
+}
+
+/* ---------- PROJECT STUDIO ---------- */
+
+$("addProjectBtn").addEventListener("click", () => {
+  $("projectForm").classList.remove("hidden");
+  $("projectTitle").focus();
+});
+
+$("cancelProject").addEventListener("click", () => {
+  $("projectForm").classList.add("hidden");
+  $("newProjectForm").reset();
+});
+
+$("newProjectForm").addEventListener("submit", event => {
+  event.preventDefault();
+
+  const title = $("projectTitle").value.trim();
+  const description = $("projectDescription").value.trim();
+  const link = $("projectLink").value.trim();
+
+  if (!title || !description) return;
+  if (link && !validURL(link)) {
+    toast("Please enter a valid HTTP or HTTPS project URL.");
+    return;
+  }
+
+  const data = getData();
+  data.projects.push({
+    id: Date.now().toString(),
+    title,
+    tech: $("projectTech").value.trim(),
+    description,
+    link
+  });
+
+  saveUserData(data);
+  $("newProjectForm").reset();
+  $("projectForm").classList.add("hidden");
+  renderAll();
+  toast("Project added to your portfolio!");
+});
+
+function renderProjects() {
+  const data = 
