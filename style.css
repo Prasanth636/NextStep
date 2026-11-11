@@ -808,3 +808,44 @@ transition-duration: .01ms !important;
 scroll-behavior: auto !important;
 }
 }
+/* NextStep responsive layout fix */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    z-index: 1000;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .main-content {
+    margin-left: 0 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .content-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .page {
+    width: 100%;
+    min-width: 0;
+    overflow-x: hidden;
+  }
+
+  .content-card,
+  .panel,
+  .feature-card {
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  input,
+  select,
+  textarea {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+}
